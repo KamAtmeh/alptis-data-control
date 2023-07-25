@@ -218,9 +218,8 @@ Get Header
     ${header}    Set Variable    ${rows[0]}
     [Return]    ${header}
     
-
 Verify Existence Enregistrement
     [Arguments]    ${ens1}    ${ens2}
     [Documentation]    Verify if all value in ens2 are in ens1
     ${result}    ctrl_cplx.pol_refecho_comparison    ${ens1}    ${ens2}
-    Should Be Empty    ${result}
+    Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. 

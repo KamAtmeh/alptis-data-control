@@ -102,6 +102,16 @@ def lf_all_gma_tmad_sor(string_csv: str, col_list: list) -> pd.DataFrame:
     return data.loc[data_result.index]
 
 def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
+    """Retourne les valeurs de ens1 qui ne sont pas dans ens2
+    Correspond à la différence en algèbre relationnelle (ens1 - ens2)
+
+    Args:
+        ens1 (pd.Series): Ensemble à gauche de la différence
+        ens2 (pd.Series): Ensemble à droite de la différence
+
+    Returns:
+        pd.Series: Valeur de ens1 qui ne sont pas dans ens2
+    """
     return ens1.loc[ens1.isin(ens2) == False]
     
 

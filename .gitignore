@@ -1,0 +1,12 @@
+## Input csv files
+LSC-SS01/*
+
+## Output csv files
+data
+
+## Python cache
+**/__pycache__
+
+## Results
+**.html
+**.xml

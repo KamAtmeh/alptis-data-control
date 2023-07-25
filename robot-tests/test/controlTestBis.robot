@@ -2,8 +2,6 @@
 Documentation     A test to verify the API function of Calculator
 ...
 ...               Keywords are imported from the resource file
-Library    ../../controle/toolbox.py
-Library    ../../controle/ctrl_cplx.py
 Library    ../resources/keywordsRPA.resource
 Library    pandas
 

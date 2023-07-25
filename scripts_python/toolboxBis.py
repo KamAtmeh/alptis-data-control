@@ -21,8 +21,21 @@
 import pandas as pd
 import numpy as np
 import re
+import datetime
 from io import StringIO
 # ======================== #
+
+def write_csv(dataframe: pd.DataFrame, filename: str):
+    df = pd.DataFrame(dataframe)
+    # Save the DataFrame to a CSV file
+    datetime.datetime.now().strftime("%Y%m%d")
+    csv_file_path = "data/output/FLAG_CONTRAT_" + filename.replace(".csv", "") + "_" + datetime.datetime.now().strftime("%Y%m%d") + ".csv"
+    df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8")
+
+
+def get_column_index_by_name(dataframe: pd.DataFrame, column_name: str):
+    return dataframe.columns.get_loc(column_name)
+
 
 def check_value(data: pd.Series, list_values: list) -> pd.Series:
     """Contrôle de valeur d'un champ parmi une liste de valeur fixe
@@ -38,20 +51,33 @@ def check_value(data: pd.Series, list_values: list) -> pd.Series:
         return first_filter.loc[first_filter.apply(check_value_val, args=[list_values]) == False]
     return data.loc[data.apply(check_value_val, args=[list_values]) == False]
 
+
 def check_value_val(one_val: str, expected_values: list) -> bool:
+    """Method to verify whether value is present in list of expected values
+
+    Args:
+        one_val (str): _description_
+        expected_values (list): _description_
+
+    Returns:
+        bool: True if value is present in list. False if else.
+    """
     return one_val in expected_values
 
 
-def check_length(one_val: str, expected_length: int) -> bool:
+def check_length(data: pd.Series, expected_length: int) -> pd.Series:
+    return data.loc[data.apply(str).apply(check_length_val, args=[expected_length]) == False]
+
+
+def check_length_val(one_val: str, expected_length: int) -> bool:
     return len(one_val) <= expected_length
 
 
 def check_string(data: pd.Series) -> pd.Series:
-    return data.loc[data.apply(str).apply(str.isnumeric)]
+    return data.loc[data.apply(str).apply(check_string_val) == False]
 
-
-def check_len_string(data: pd.Series, expected_length: int) -> pd.Series:
-    return data.loc[data.apply(check_length, args=expected_length) == False]
+def check_string_val(one_val: str) -> bool:
+    return not one_val.isnumeric()
 
 def check_number_val(one_val: str, expected_format: str) -> bool:
     total,decimal = expected_format.split(",")
@@ -62,11 +88,14 @@ def check_number_val(one_val: str, expected_format: str) -> bool:
     print(pattern)
     return bool(re.match(pattern, str(one_val)))
 
+
 def check_int(data: pd.Series) -> pd.Series:
     return data.loc[data.apply(str).apply(check_int_val) == False]
 
+
 def check_int_val(one_val: str) -> bool:
     return one_val.isdigit()
+
 
 def check_float(data: pd.Series) -> pd.Series:
     return data.apply(str).apply(check_float_val)
@@ -92,14 +121,15 @@ def check_date_val(one_val: str) -> bool:
 
 
 if __name__ == "__main__":
-    print(check_int_val(str(2)))
+    print(check_string_val('2'))
     #print(check_float(str(18231201)))
-    contrat_lsc = pd.read_csv("LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv", sep=";", header=0)
+    contrat_lsc = pd.read_csv("data/input/LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv", sep=";", header=0)
     # contrat_lsc = pd.read_csv("LSC-SS01/GARANTIE/TEST_F_SAS_GARANTIE_BM.csv", sep=";", header=0)
     # print(check_string(contrat_lsc["SCON_POL_REFECHO"]))
     # print(check_string(contrat_lsc["SCON_POL_DATDEB"]))
     #print(check_string(contrat_lsc["SCON_TYPOLOGIE"]))
-    print(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['05_ADP_FILS_MAITRE','01_ADP_COLLECTIF','02_ADP_MAITRE']))
+    #print(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['']))
+    #write_csv(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['']),"test")
     # print(check_int(contrat_lsc["SGAR_GAD_TX1"]))
 
 

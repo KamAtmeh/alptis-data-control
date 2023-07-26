@@ -36,6 +36,14 @@ def write_csv(dataframe: pd.DataFrame, filename: str):
 def get_column_index_by_name(dataframe: pd.DataFrame, column_name: str):
     return dataframe.columns.get_loc(column_name)
 
+def filter_list(data: pd.Series, filter: pd.Series) -> pd.Series:
+    # Apply the mask to the original series to get the filtered result
+    return data[~data.isin(filter)]
+
+def concatenate_dataframes(*args):
+    # Concatenate DataFrames by row
+    return pd.concat(args).sort_index()
+
 
 def check_value(data: pd.Series, list_values: list) -> pd.Series:
     """Contrôle de valeur d'un champ parmi une liste de valeur fixe
@@ -46,11 +54,18 @@ def check_value(data: pd.Series, list_values: list) -> pd.Series:
             [Nom de la colonne, Numéro de la colonne, Nom du contrôle, Détails du contrôle]
     """
     if '' in list_values:
-        print(data.isna())
         first_filter = data.loc[data.isna() == False]
-        return first_filter.loc[first_filter.apply(check_value_val, args=[list_values]) == False]
-    return data.loc[data.apply(check_value_val, args=[list_values]) == False]
-
+        res = first_filter.loc[first_filter.apply(check_value_val, args=[list_values]) == False]
+    else:
+        res = data.loc[data.apply(check_value_val, args=[list_values]) == False]
+        
+    # Convert the Series to a DataFrame
+    df = pd.DataFrame({'value': res})
+    # Define the message template
+    message_template = "Value '{}' does not correspond to any of the following values: " + ", ".join(map(str, list_values))
+    # Add the new column with the formatted message
+    df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
+    return df
 
 def check_value_val(one_val: str, expected_values: list) -> bool:
     """Method to verify whether value is present in list of expected values
@@ -65,41 +80,43 @@ def check_value_val(one_val: str, expected_values: list) -> bool:
     return one_val in expected_values
 
 
-def check_length(data: pd.Series, expected_length: int) -> pd.Series:
-    return data.loc[data.apply(str).apply(check_length_val, args=[expected_length]) == False]
-
+def check_length(data: pd.Series, expected_length: int, variable_type: str) -> pd.Series:
+    # Convert the Series to a DataFrame
+    df = pd.DataFrame({'value': data.loc[data.apply(str).apply(check_length_val, args=[expected_length]) == False]})
+    # Define the message template
+    message_template = "{} length should be less than or equal to {}".format(variable_type, expected_length)
+    # Add the new column with the formatted message
+    df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
+    return df
 
 def check_length_val(one_val: str, expected_length: int) -> bool:
     return len(one_val) <= expected_length
 
 
 def check_string(data: pd.Series) -> pd.Series:
-    return data.loc[data.apply(str).apply(check_string_val) == False]
+    return add_flag_details(data.loc[data.apply(str).apply(check_string_val) == False], "Value '{}' is not a string")
 
 def check_string_val(one_val: str) -> bool:
     return not one_val.isnumeric()
+
 
 def check_number_val(one_val: str, expected_format: str) -> bool:
     total,decimal = expected_format.split(",")
     entier = int(total) - int(decimal)
     print(entier, decimal)
-    #pattern = r'^\d\{{0}\}\.\d\{{1}\}$'.format(entier, decimal)
     pattern = fr'^\d{{{entier}}}\.\d{{{decimal}}}$'
-    print(pattern)
     return bool(re.match(pattern, str(one_val)))
 
 
 def check_int(data: pd.Series) -> pd.Series:
-    return data.loc[data.apply(str).apply(check_int_val) == False]
-
+    return add_flag_details(data.loc[data.apply(str).apply(check_int_val) == False], "Value '{}' is not an integer")
 
 def check_int_val(one_val: str) -> bool:
     return one_val.isdigit()
 
 
 def check_float(data: pd.Series) -> pd.Series:
-    return data.apply(str).apply(check_float_val)
-    #return data.loc[data.apply(str).apply(check_float_val) == False]
+    return add_flag_details(data.loc[data.apply(str).apply(check_float_val) == False], "Value '{}' is not a decimal number")
 
 def check_float_val(one_val: str) -> bool:
     try:
@@ -108,16 +125,21 @@ def check_float_val(one_val: str) -> bool:
         return False
     return not check_int_val(one_val)
 
+
 def check_date(data: pd.Series) -> pd.Series:
-    return data.loc[data.apply(str).apply(check_date_val) == False]
+    return add_flag_details(data.loc[data.apply(str).apply(check_date_val) == False], "Value '{}' does not match the YYYYMMDD date format")
 
 def check_date_val(one_val: str) -> bool:
     pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$'
-    print(pattern)
     return bool(re.match(pattern, str(one_val)))
 
 
-
+def add_flag_details(data: pd.Series, message_template: str) -> pd.DataFrame:
+    # Convert the Series to a DataFrame
+    df = pd.DataFrame({'value': data})
+    # Add the new column with the formatted message
+    df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
+    return df
 
 
 if __name__ == "__main__":
@@ -127,8 +149,8 @@ if __name__ == "__main__":
     # contrat_lsc = pd.read_csv("LSC-SS01/GARANTIE/TEST_F_SAS_GARANTIE_BM.csv", sep=";", header=0)
     # print(check_string(contrat_lsc["SCON_POL_REFECHO"]))
     # print(check_string(contrat_lsc["SCON_POL_DATDEB"]))
-    #print(check_string(contrat_lsc["SCON_TYPOLOGIE"]))
-    #print(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['']))
+    #print(check_int(contrat_lsc["SCON_TYPOLOGIE"]))
+    print(check_date(contrat_lsc["SCON_TYPOLOGIE"]))
     #write_csv(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['']),"test")
     # print(check_int(contrat_lsc["SGAR_GAD_TX1"]))
 

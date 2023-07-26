@@ -31,16 +31,27 @@ Verify Data
     @{col}    Create List
     @{value}    Create List
     @{flag_details}    Create List
-    Run Keyword And Continue On Failure    Verify Data Type    ${csv_data.get('${column}')}    ${data_type}
+
+    # Verify data type on all column
+    ${result_type}    Verify Data Type    ${csv_data.get('${column}')}    ${data_type}
+
+    # For the next step, we remove values that did not pass the type test. And we verify the values of the ones that did.
+    ${passed_values}    toolboxBis.Filter List    ${csv_data.get('${column}')}    ${result_type.get('value')}
+
+    # Verify data values on filtered lines  
     IF    '${data_type.lower()}' != 'date'
-       Run Keyword And Continue On Failure    Verify Data Values    ${csv_data.get('${column}')}    ${list_values} 
+       ${result_value}    Verify Data Values    ${passed_values}    ${list_values} 
     END
+
+    ${result}    toolboxBis.Concatenate Dataframes    ${result_type}    ${result_value}
+    Log To Console    ${result}
 
 Verify Data Values
     [Arguments]    ${data}    ${expected_values}
     [Documentation]    Verify that the value of the variable corresponds to the expected values
     ${result}    toolboxBis.Check Value    ${data}    ${expected_values}
-    Should Be Empty    ${result}    Value does not correspond to any of the following values ${expected_values}
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values do not correspond to any of the following values ${expected_values}
+    [Return]    ${result}
 
 # Verify taux et montant
 
@@ -54,15 +65,15 @@ Verify Data Type
     ${format}=    Run Keyword If    '${type.lower()}' != 'date'    Set Variable    ${parts[1][:-1]}
 
     IF    '${type.lower()}' == 'number'
-        Verify Number    ${data}    ${format}
+        ${result}    Verify Number    ${data}    ${format}
 
     ELSE IF    '${type.lower()}' == 'varchar2'
         ${result}    Verify String    ${data}    ${format}
-        Log To Console    ${result}
 
     ELSE IF    '${type.lower()}' == 'date'
-        Verify Date    ${data}
+        ${result}    Verify Date    ${data}
     END
+    [Return]    ${result}
 
 Verify String
     [Arguments]    ${data}    ${expected_length}
@@ -75,7 +86,8 @@ Verify Date
     [Arguments]    ${data}
     [Documentation]    Verify that the variable follows the YYYYMMDD date format
     ${result}    toolboxBis.Check Date    ${data}
-    Should Be Empty    ${result}    Value does not match the YYYYMMDD date format
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values do not match the YYYYMMDD date format
+    [Return]    ${result}
 
 Verify Number
     [Arguments]    ${data}    ${format}
@@ -86,36 +98,44 @@ Verify Number
     ${expected_digits_num}    Evaluate    ${expected_length} - ${expected_decimals}
     IF    '${expected_decimals}' == '0'
         # Verify if value is an integer
-        Verify Integer    ${data}
+        ${result_int}    Verify Integer    ${data}
+        # For the next step, we remove values that did not pass the type test. And we verify the length of the ones that did.
+        ${passed_int_values}    toolboxBis.Filter List    ${data}    ${result_int.get('value')}
         # Verify length of integer
-        Verify Length    ${data}    ${expected_digits_num}    Number
+        ${result_int_length}    Verify Length    ${passed_int_values}    ${expected_digits_num}    Number
+        ${result}    toolboxBis.Concatenate Dataframes    ${result_int}    ${result_int_length}
     ELSE
         # Verify if variable is a decimal
-        Verify Float    ${data}
+        ${result_float}    Verify Float    ${data}
+        # For the next step, we remove values that did not pass the type test. And we verify the length of the ones that did.
+        ${passed_float_values}    toolboxBis.Filter List    ${data}    ${result_float.get('value')}
         # Split based on decimal separator
-        ${num}    ${decimals}    Split String    ${data}    .
+        ${num}    ${decimals}    Split String    ${passed_float_values}    .
         # Verify length of number
-        Verify Length    ${num}    ${expected_digits_num}    Number
+        ${result_entier_length}    Verify Length    ${num}    ${expected_digits_num}    Number
         # Verify length of decimal digits
-        Verify Length    ${decimals}    ${expected_decimals}    Decimal
+        ${result_decimal_length}    Verify Length    ${decimals}    ${expected_decimals}    Decimal
     END  
+    [Return]    ${result}
 
 Verify Integer
     [Arguments]    ${data}
     [Documentation]    Verify that variable is an integer
     ${result}    toolboxBis.Check Int    ${data}
-    Should Be Empty    ${result}    Value is not an integer
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values are not integers
+    [Return]    ${result}
 
 Verify Float
     [Arguments]    ${data}
     [Documentation]    Verify that variable is a float
     ${result}    toolboxBis.Check Float    ${data}
-    Should Be Empty    ${result}    Value is not a decimal number
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values are not decimal numbers
+    [Return]    ${result}
 
 Verify Length
     [Arguments]    ${data}    ${expected_length}    ${err_msg_variable_type}
     [Documentation]    Verify character length of item
-    ${result}    toolboxBis.Check Length    ${data}    ${expected_length}
+    ${result}    toolboxBis.Check Length    ${data}    ${expected_length}    ${err_msg_variable_type}
     Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${err_msg_variable_type} length should be less than or equal to ${expected_length}
     [Return]    ${result}
 

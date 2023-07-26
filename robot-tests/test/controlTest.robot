@@ -22,10 +22,10 @@ Verify Column Values in CSV File
 
 Verify Data Type
     Log    Retrieve input CSV files from ${input_files_directory}    console=${True}
-    ${input_files}    keywordsPD.List CSV Files In Directory    ${input_files_directory}
-    Log    Get file name of ${input_files[0]}    console=${True}
+    #${input_files}    keywordsPD.List CSV Files In Directory    ${input_files_directory}
+    #Log    Get file name of ${input_files[0]}    console=${True}
     ${file_name}    Set Variable    test
-    Log    Read input CSV file ${input_files[0]}    console=${True}
-    ${csv_data}    keywordsPD.Read CSV    ${input_files[0]}
+    #Log    Read input CSV file ${input_files[0]}    console=${True}
+    ${csv_data}    keywordsPD.Read CSV    ${filepath1}
     Log    Verify data value in each column    console=${True}
-    ${result_table}    keywordsPD.Verify Data    ${file_name}    ${csv_data}    SCON_TYPOLOGIE    ${column1}    VARCHAR2(3)
+    ${result_table}    keywordsPD.Verify Data    ${file_name}    ${csv_data}    SCON_TYPOLOGIE    ${column1}    NUMBER(3,0)

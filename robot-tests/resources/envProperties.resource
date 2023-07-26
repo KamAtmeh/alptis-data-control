@@ -7,13 +7,13 @@ Library    OperatingSystem
 Library    DateTime
 Library    pandas
 
-Library    ../../controle/ctrl_cplx.py
+#Library    ../../controle/ctrl_cplx.py
 
 *** Variables ***
 ${input_files_directory}    //fs-cleva.alptis.local/Migration/Back/input/CONTRAT/LSC/
-${filepath1}    LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv
+${filepath1}    data/input/LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv
 ${filepath69}    LSC-SS01/CONTRAT/TEST_C69_F_SAS_CONTRAT_SL.csv
-${column1}    ['05_ADP_FILS_MAITRE','01_ADP_COLLECTIF','02_ADP_MAITRE']
+${column1}    ['05_ADP_FILS_MAITRE','01_ADP_COLLECTIF','02_ADP_MAITRE','']
 @{column1list}
 ...    05_ADP_FILS_MAITRE
 ...    1_ADP_COLLECTIF

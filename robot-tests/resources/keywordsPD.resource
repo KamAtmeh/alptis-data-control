@@ -23,7 +23,7 @@ List CSV Files In Directory
     ${csv_files}    OperatingSystem.List Files In Directory    ${directory_path}    pattern=*.csv    absolute=${True}
     [Return]    ${csv_files}
 
-Verify Data
+Verify Column Data
     [Arguments]    ${file}    ${csv_data}    ${column}    ${list_values}    ${data_type}
     # Create list to stock line numbers that are not valid
     @{file_name}    Create List
@@ -109,12 +109,9 @@ Verify Number
         ${result_float}    Verify Float    ${data}
         # For the next step, we remove values that did not pass the type test. And we verify the length of the ones that did.
         ${passed_float_values}    toolboxBis.Filter List    ${data}    ${result_float.get('value')}
-        # Split based on decimal separator
-        ${num}    ${decimals}    Split String    ${passed_float_values}    .
-        # Verify length of number
-        ${result_entier_length}    Verify Length    ${num}    ${expected_digits_num}    Number
-        # Verify length of decimal digits
-        ${result_decimal_length}    Verify Length    ${decimals}    ${expected_decimals}    Decimal
+        # Verify format of float number
+        ${result_float_format}    Verify Decimal    ${passed_float_values}    ${format}
+        ${result}    toolboxBis.Concatenate Dataframes    ${result_float}    ${result_float_format}
     END  
     [Return]    ${result}
 
@@ -130,6 +127,13 @@ Verify Float
     [Documentation]    Verify that variable is a float
     ${result}    toolboxBis.Check Float    ${data}
     Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values are not decimal numbers
+    [Return]    ${result}
+
+Verify Decimal
+    [Arguments]    ${data}    ${format}
+    [Documentation]    Verify that the decimal number follows the determined formet (A,B)
+    ${result}    toolboxBis.Check Decimal    ${data}    ${format}
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some float numbers do not follow the required format '(${format})'
     [Return]    ${result}
 
 Verify Length

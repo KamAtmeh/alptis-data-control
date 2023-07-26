@@ -100,11 +100,26 @@ def check_string_val(one_val: str) -> bool:
     return not one_val.isnumeric()
 
 
-def check_number_val(one_val: str, expected_format: str) -> bool:
+def check_decimal(data: pd.Series, expected_format: str) -> pd.DataFrame:
+    # Convert the Series to a DataFrame
+    df = pd.DataFrame({'value': data.loc[data.apply(str).apply(check_decimal_val, args=[expected_format]) == False]})
+    # Define the message template
+    message_template = "Value '{}' does not correspond to the number format (" + expected_format + ")"
+    # Add the new column with the formatted message
+    df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
+    return df
+
+def check_decimal_val(one_val: str, expected_format: str) -> bool:
     total,decimal = expected_format.split(",")
     entier = int(total) - int(decimal)
-    print(entier, decimal)
-    pattern = fr'^\d{{{entier}}}\.\d{{{decimal}}}$'
+    
+    # Define the regular expression pattern for the number format
+    pattern = r'^\d{1,%d}(?:\.\d{1,%d})?$' % (entier, int(decimal))
+    
+    # Convert the float to a string
+    number_str = str(one_val)
+    
+    # Use regex to check if the number matches the format
     return bool(re.match(pattern, str(one_val)))
 
 
@@ -143,14 +158,14 @@ def add_flag_details(data: pd.Series, message_template: str) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    print(check_string_val('2'))
+    #print(check_number_val(2.2, "3,2"))
     #print(check_float(str(18231201)))
     contrat_lsc = pd.read_csv("data/input/LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv", sep=";", header=0)
     # contrat_lsc = pd.read_csv("LSC-SS01/GARANTIE/TEST_F_SAS_GARANTIE_BM.csv", sep=";", header=0)
     # print(check_string(contrat_lsc["SCON_POL_REFECHO"]))
     # print(check_string(contrat_lsc["SCON_POL_DATDEB"]))
     #print(check_int(contrat_lsc["SCON_TYPOLOGIE"]))
-    print(check_date(contrat_lsc["SCON_TYPOLOGIE"]))
+    print(check_decimal(contrat_lsc["SCON_TYPOLOGIE"], "2,1").get('flag_details')[0])
     #write_csv(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['']),"test")
     # print(check_int(contrat_lsc["SGAR_GAD_TX1"]))
 

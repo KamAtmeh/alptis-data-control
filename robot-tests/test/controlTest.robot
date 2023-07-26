@@ -19,12 +19,12 @@ Verify Data Type
         Log    Import specifications file 
         ${excel}    keywordsPD.Read Excel File    ${spec_contrats}    Contrat    header=${6}
         ${file_results}    Create Empty Dataframe
-        FOR    ${row}    IN RANGE    ${0}    ${excel.__len__()}
-            Log    Run verification on column ${excel.loc[${row},'Zone SAS']} ${excel.loc[${row},'Champ']} ${excel.loc[${row},'Type']}   console=${True}
+        FOR    ${row}    IN RANGE    ${1}    ${excel.__len__()}
+            Log    Run verification on column ${excel.loc[${row},'Zone SAS']}   console=${True}
             ${result_table}    keywordsPD.Verify Column Data    ${csv_data}    ${excel.loc[${row},'Zone SAS']}    ${excel.loc[${row},'Champ']}    ${excel.loc[${row},'Type']}
             Log    Get summary table of verification on file ${file_name}    console=${True}
             ${column_results}    keywordsPD.Get Verification Results    ${file_name}    ${excel.loc[${row},'Zone SAS']}    ${result_table}
-            Log    Join columns results into one big file    console=${True}
+            Log    Group column results into one big file    console=${True}
             ${file_results}    toolboxBis.Concatenate Dataframes    ${file_results}    ${column_results}
             Log    Save the results table into a CSV file    console=${True}
             keywordsPD.Write Result CSV    ${file_results}    ${file_name}

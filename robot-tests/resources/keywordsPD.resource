@@ -44,6 +44,7 @@ Get Verification Results
     [Arguments]    ${file_name}    ${column}    ${result}
     [Documentation]    Add columns containing file and column name to results table
     ${final_results}    toolboxBis.Get Final Table Result    ${file_name}    ${column}    ${result}
+    Log To Console    ${final_results}
     [Return]    ${final_results}
 
 
@@ -76,10 +77,11 @@ Verify Column Data
         Log    Verify values in column ${column}    console=${True}
        ${result_value}    Verify Data Values    ${passed_values}    ${list_values}
     END
-
+    Log To Console    ${result_type}
+    Log To Console    ${result_value}
     # Join results of both verifications in one dataframe
     ${result}    toolboxBis.Concatenate Dataframes    ${result_type}    ${result_value}
-    
+    Log To Console    ${result}
     # Return results dataframe
     [Return]    ${result}
 

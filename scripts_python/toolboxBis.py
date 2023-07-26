@@ -56,7 +56,7 @@ def get_final_table_result(file: str, column: str, result: pd.DataFrame) -> pd.D
         "num_line": pd.Series([int(idx) + 1 for idx in result.index.values], dtype=int),
         "column": np.repeat(column, len(result.index.values)),
     })
-    final_result = pd.concat([final_result,result], axis=1)
+    final_result = pd.concat([final_result,result.reset_index()], axis=1)
     #result.insert(0, 'file_name', file)
     #result.insert(1, 'num_line', [int(idx) + 1 for idx in result.index.values])
     #result['num_line'] = result['num_line'].apply(int)
@@ -189,12 +189,12 @@ def add_flag_details(data: pd.Series, message_template: str) -> pd.DataFrame:
 if __name__ == "__main__":
     #print(check_number_val(2.2, "3,2"))
     #print(check_float(str(18231201)))
-    contrat_lsc = pd.read_csv("data/input/LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv", sep=";", header=0)
+    contrat_lsc = pd.read_csv("//fs-cleva.alptis.local/Migration/Back/input/CONTRAT/LSC/F_SAS_CONTRAT_BM.csv", sep=";", header=0, dtype=str)
     # contrat_lsc = pd.read_csv("LSC-SS01/GARANTIE/TEST_F_SAS_GARANTIE_BM.csv", sep=";", header=0)
     # print(check_string(contrat_lsc["SCON_POL_REFECHO"]))
     # print(check_string(contrat_lsc["SCON_POL_DATDEB"]))
     #print(check_int(contrat_lsc["SCON_TYPOLOGIE"]))
-    print(check_decimal(contrat_lsc["SCON_TYPOLOGIE"], "2,1").get('flag_details')[0])
+    print(check_value(contrat_lsc["SCON_POL_LIB15"], "[\"0\",\"1\"]"))
     #write_csv(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['']),"test")
     # print(check_int(contrat_lsc["SGAR_GAD_TX1"]))
 

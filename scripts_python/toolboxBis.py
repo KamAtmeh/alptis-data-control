@@ -22,6 +22,7 @@ import pandas as pd
 import numpy as np
 import re
 import datetime
+import os
 from io import StringIO
 # ======================== #
 
@@ -32,6 +33,8 @@ def write_csv(dataframe: pd.DataFrame, filename: str):
     csv_file_path = "data/output/FLAG_CONTRAT_" + filename.replace(".csv", "") + "_" + datetime.datetime.now().strftime("%Y%m%d") + ".csv"
     df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8")
 
+def retrieve_file_name(path: str) -> str:
+    return os.path.basename(path)
 
 def get_column_index_by_name(dataframe: pd.DataFrame, column_name: str):
     return dataframe.columns.get_loc(column_name)
@@ -40,12 +43,29 @@ def filter_list(data: pd.Series, filter: pd.Series) -> pd.Series:
     # Apply the mask to the original series to get the filtered result
     return data[~data.isin(filter)]
 
+def initialize_empty_dataframe() -> pd.DataFrame:
+    return pd.DataFrame()
+
 def concatenate_dataframes(*args):
     # Concatenate DataFrames by row
-    return pd.concat(args).sort_index()
+    return pd.concat(args)
+
+def get_final_table_result(file: str, column: str, result: pd.DataFrame) -> pd.DataFrame:
+    final_result = pd.DataFrame({
+        "file_name": np.repeat(file, len(result.index.values)),
+        "num_line": pd.Series([int(idx) + 1 for idx in result.index.values], dtype=int),
+        "column": np.repeat(column, len(result.index.values)),
+    })
+    final_result = pd.concat([final_result,result], axis=1)
+    #result.insert(0, 'file_name', file)
+    #result.insert(1, 'num_line', [int(idx) + 1 for idx in result.index.values])
+    #result['num_line'] = result['num_line'].apply(int)
+    #result.insert(2, 'column', column)
+    final_result.sort_values(by=['column','num_line'])
+    return final_result
 
 
-def check_value(data: pd.Series, list_values: list) -> pd.Series:
+def check_value(data: pd.Series, list_values: str) -> pd.Series:
     """Contrôle de valeur d'un champ parmi une liste de valeur fixe
 
     Args:
@@ -53,16 +73,22 @@ def check_value(data: pd.Series, list_values: list) -> pd.Series:
         information (List): Liste d'information avec dans l'ordre 
             [Nom de la colonne, Numéro de la colonne, Nom du contrôle, Détails du contrôle]
     """
+    if "[" in list_values:
+        list_values = eval(list_values.strip())
+    else :
+        list_values = [list_values.strip()]
+
     if '' in list_values:
         first_filter = data.loc[data.isna() == False]
         res = first_filter.loc[first_filter.apply(check_value_val, args=[list_values]) == False]
     else:
+        data = data.fillna('')
         res = data.loc[data.apply(check_value_val, args=[list_values]) == False]
         
     # Convert the Series to a DataFrame
     df = pd.DataFrame({'value': res})
     # Define the message template
-    message_template = "Value '{}' does not correspond to any of the following values: " + ", ".join(map(str, list_values))
+    message_template = "Value {} does not correspond to any of the following values: " + ", ".join(map(str, list_values))
     # Add the new column with the formatted message
     df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
     return df
@@ -81,8 +107,9 @@ def check_value_val(one_val: str, expected_values: list) -> bool:
 
 
 def check_length(data: pd.Series, expected_length: int, variable_type: str) -> pd.Series:
+    temp_data = data.loc[data.isna() == False]
     # Convert the Series to a DataFrame
-    df = pd.DataFrame({'value': data.loc[data.apply(str).apply(check_length_val, args=[expected_length]) == False]})
+    df = pd.DataFrame({'value': temp_data.loc[temp_data.apply(str).apply(check_length_val, args=[expected_length]) == False]})
     # Define the message template
     message_template = "{} length should be less than or equal to {}".format(variable_type, expected_length)
     # Add the new column with the formatted message
@@ -94,17 +121,19 @@ def check_length_val(one_val: str, expected_length: int) -> bool:
 
 
 def check_string(data: pd.Series) -> pd.Series:
-    return add_flag_details(data.loc[data.apply(str).apply(check_string_val) == False], "Value '{}' is not a string")
+    temp_data = data.loc[data.isna() == False]
+    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_string_val) == False], "Value \'{}\' is not a string")
 
 def check_string_val(one_val: str) -> bool:
     return not one_val.isnumeric()
 
 
 def check_decimal(data: pd.Series, expected_format: str) -> pd.DataFrame:
+    temp_data = data.loc[data.isna() == False]
     # Convert the Series to a DataFrame
-    df = pd.DataFrame({'value': data.loc[data.apply(str).apply(check_decimal_val, args=[expected_format]) == False]})
+    df = pd.DataFrame({'value': temp_data.loc[temp_data.apply(str).apply(check_decimal_val, args=[expected_format]) == False]})
     # Define the message template
-    message_template = "Value '{}' does not correspond to the number format (" + expected_format + ")"
+    message_template = "Value \'{}\' does not correspond to the number format (" + expected_format + ")"
     # Add the new column with the formatted message
     df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
     return df
@@ -116,22 +145,21 @@ def check_decimal_val(one_val: str, expected_format: str) -> bool:
     # Define the regular expression pattern for the number format
     pattern = r'^\d{1,%d}(?:\.\d{1,%d})?$' % (entier, int(decimal))
     
-    # Convert the float to a string
-    number_str = str(one_val)
-    
     # Use regex to check if the number matches the format
     return bool(re.match(pattern, str(one_val)))
 
 
 def check_int(data: pd.Series) -> pd.Series:
-    return add_flag_details(data.loc[data.apply(str).apply(check_int_val) == False], "Value '{}' is not an integer")
+    temp_data = data.loc[data.isna() == False]
+    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_int_val) == False], "Value \'{}\' is not an integer")
 
 def check_int_val(one_val: str) -> bool:
     return one_val.isdigit()
 
 
 def check_float(data: pd.Series) -> pd.Series:
-    return add_flag_details(data.loc[data.apply(str).apply(check_float_val) == False], "Value '{}' is not a decimal number")
+    temp_data = data.loc[data.isna() == False]
+    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_float_val) == False], "Value \'{}\' is not a decimal number")
 
 def check_float_val(one_val: str) -> bool:
     try:
@@ -142,7 +170,8 @@ def check_float_val(one_val: str) -> bool:
 
 
 def check_date(data: pd.Series) -> pd.Series:
-    return add_flag_details(data.loc[data.apply(str).apply(check_date_val) == False], "Value '{}' does not match the YYYYMMDD date format")
+    temp_data = data.loc[data.isna() == False]
+    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_date_val) == False], "Value \'{}\' does not match the YYYYMMDD date format")
 
 def check_date_val(one_val: str) -> bool:
     pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$'

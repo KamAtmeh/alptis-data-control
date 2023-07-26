@@ -10,6 +10,7 @@ Library    pandas
 #Library    ../../controle/ctrl_cplx.py
 
 *** Variables ***
+${spec_contrats}    data/input/LSC-SS01/INPUT_FULL_CLEAN.xlsx
 ${input_files_directory}    //fs-cleva.alptis.local/Migration/Back/input/CONTRAT/LSC/
 ${filepath1}    data/input/LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv
 ${filepath69}    LSC-SS01/CONTRAT/TEST_C69_F_SAS_CONTRAT_SL.csv

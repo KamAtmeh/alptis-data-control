@@ -59,6 +59,7 @@ if __name__ == "__main__":
     # print(check_string(contrat_lsc["SCON_POL_DATDEB"]))
     print(check_string(contrat_lsc["SCON_TYPOLOGIE"]))
     # print(check_int(contrat_lsc["SGAR_GAD_TX1"]))
+    
 
 
 

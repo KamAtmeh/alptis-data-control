@@ -4,17 +4,17 @@
 ####    Information     ####
 # ------------------------ #
 # Version   : V0
-# Author    : Morgan Séguéla
-# Date      : 20/07/2023
+# Author    : Kamal Atmeh
+# Date      : 25/07/2023
 
 ####    Objectif        ####
 # ------------------------ #
-# Le but de ce programme est de fournir un ensemble de controles complexes 
+# Le but de ce programme est de fournir un ensemble de controles simples 
 # à importer dans robot framework
 
 ####    A faire         ####
 # ------------------------ #
-# Tester avec garantie
+
 
 ####    Packages        ####
 # ------------------------ #

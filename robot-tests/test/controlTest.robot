@@ -17,7 +17,7 @@ Verify Data Type
         ${csv_data}    keywordsPD.Read CSV    ${file}
 
         Log    Import specifications file 
-        ${excel}    keywordsPD.Read Excel File    ${spec_contrats}    Contrat    header=${6}
+        ${excel}    keywordsPD.Read Excel File    ${spec_contrats}    CONTRAT    header=${6}
         ${file_results}    Create Empty Dataframe
         FOR    ${row}    IN RANGE    ${1}    ${excel.__len__()}
             Log    Run verification on column ${excel.loc[${row},'Zone SAS']}   console=${True}

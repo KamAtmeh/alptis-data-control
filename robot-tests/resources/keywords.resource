@@ -72,13 +72,16 @@ Verify Data Type
     # Split the variable using '(' as the separator
     ${parts}=    Split String    ${variableType}    (
     ${type}=    Set Variable    ${parts[0]}
-    # Remove the closing parenthesis from the second part
-    ${condition}=    Run Keyword If    '${type.lower()}' != 'date'    Set Variable    ${parts[1][:-1]}
-
     IF    '${type.lower()}' == 'number'
+        # Remove the closing parenthesis from the second part
+        ${condition}=    Set Variable    ${parts[1][:-1]}
+
         ${status}=    Run Keyword And Ignore Error    Verify Number    ${variable}    ${condition}
 
     ELSE IF    '${type.lower()}' == 'varchar2'
+        # Remove the closing parenthesis and CHAR/BYTE text from the second part
+        ${condition}=    Set Variable    ${parts[1][:-5]}
+
         ${status}=    Run Keyword And Ignore Error    Verify String    ${variable}    ${condition}
 
     ELSE IF    '${type.lower()}' == 'date'

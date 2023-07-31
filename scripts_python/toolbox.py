@@ -57,10 +57,7 @@ def get_final_table_result(file: str, column: str, result: pd.DataFrame) -> pd.D
         "column": np.repeat(column, len(result.index.values)),
     })
     final_result = pd.concat([final_result,result.reset_index()], axis=1)
-    #result.insert(0, 'file_name', file)
-    #result.insert(1, 'num_line', [int(idx) + 1 for idx in result.index.values])
-    #result['num_line'] = result['num_line'].apply(int)
-    #result.insert(2, 'column', column)
+    final_result.loc["file_name","num_line","column","value","flag_details"]
     final_result.sort_values(by=['column','num_line'])
     return final_result
 

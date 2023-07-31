@@ -5,7 +5,7 @@ Resource    envProperties.resource
 
 *** Keywords ***
 # Keyword to create CSV file
-Read CSV
+Read CSV File
     [Arguments]    ${filepath}    ${sep}=;    ${header}=${0}
     [Documentation]    Read a table from a CSV and add a column that indexes the number of rows
     ${csv_data}    pandas.Read Csv    filepath_or_buffer=${filepath}    sep=${sep}    header=${0}    encoding=UTF-8    dtype=string
@@ -25,7 +25,7 @@ Write Result CSV
 List CSV Files In Directory
     [Arguments]    ${directory_path}
     [Documentation]    List CSV files that are present in a directory
-    ${csv_files}    OperatingSystem.List Files In Directory    ${directory_path}    pattern=*.csv    absolute=${True}
+    ${csv_files}    OperatingSystem.List Files In Directory    ${directory_path}    pattern=F_SAS*.csv    absolute=${True}
     [Return]    ${csv_files}
 
 Create Empty Dataframe
@@ -39,10 +39,17 @@ Get File Name
     ${file_name}    toolbox.Retrieve File Name    ${file_path}
     [Return]    ${file_name}
 
+Get Row To Start Reading Excel From
+    [Arguments]    ${dictionary_map}    ${sheet_name}
+    ${my_dict}=    Evaluate    json.loads('''${dictionary_map}''') # Parse the JSON string to create a dictionary
+    ${row}=    Get From Dictionary    ${my_dict}    ${sheet_name}
+    [Return]    ${row}
+
 Get Verification Results
     [Arguments]    ${file_name}    ${column}    ${result}
     [Documentation]    Add columns containing file and column name to results table
     ${final_results}    toolbox.Get Final Table Result    ${file_name}    ${column}    ${result}
+    ${final_results}    Drop Duplicates    ${final_results}
     [Return]    ${final_results}
 
 
@@ -94,6 +101,8 @@ Verify Data Type
     [Arguments]    ${data}    ${variableType}
     [Documentation]    Verify data type
     # Split the variable using '(' as the separator
+    ${variableType}    Replace String    ${variableType}    CHAR)    )
+    ${variableType}    Replace String    ${variableType}    BYTE)    )
     ${parts}=    Split String    ${variableType}    (
     ${type}=    Set Variable    ${parts[0]}
     # Retrieve the condition of the variable type from within the parenthesis only if type is not equal to DATE

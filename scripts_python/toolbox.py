@@ -29,12 +29,32 @@ from io import StringIO
 def write_csv(dataframe: pd.DataFrame, filename: str):
     df = pd.DataFrame(dataframe)
     # Save the DataFrame to a CSV file
-    datetime.datetime.now().strftime("%Y%m%d")
-    csv_file_path = "data/output/FLAG_CONTRAT_" + filename.replace(".csv", "") + "_" + datetime.datetime.now().strftime("%Y%m%d") + ".csv"
+    current_date = datetime.datetime.now().strftime("%Y%m%d")
+    outputdir = "data/output/" + current_date
+    # Create directory with date as name
+    if not os.path.exists(outputdir):
+        os.makedirs(outputdir)
+        print(f"Folder '{outputdir}' created successfully.")
+    else:
+        print(f"Folder '{outputdir}' already exists.")
+    csv_file_path = outputdir + "/FLAG_CONTRAT_" + filename.replace(".csv", "") + "_" + current_date + ".csv"
     df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8")
 
 def retrieve_file_name(path: str) -> str:
     return os.path.basename(path)
+
+def get_sheet_name_from_file(filename: str) -> str:
+    # Define the regular expression pattern
+    pattern = r"^(.*?)_?(?:BM|SL)?\.csv$"
+    # Use re.search to find the match
+    match = re.search(pattern, filename)
+    if match:
+        # Extract the text before the matching part
+        text_before_match = match.group(1)
+        # Print the result
+        return text_before_match
+    else:
+        print("No match found.")
 
 def get_column_index_by_name(dataframe: pd.DataFrame, column_name: str):
     return dataframe.columns.get_loc(column_name)
@@ -57,10 +77,14 @@ def get_final_table_result(file: str, column: str, result: pd.DataFrame) -> pd.D
         "column": np.repeat(column, len(result.index.values)),
     })
     final_result = pd.concat([final_result,result.reset_index()], axis=1)
-    final_result.loc["file_name","num_line","column","value","flag_details"]
+    final_result = final_result.drop("index", axis=1)
     final_result.sort_values(by=['column','num_line'])
     return final_result
 
+def drop_duplicates(df: pd.DataFrame) -> pd.DataFrame:
+    df.drop("num_line", axis=1, inplace=True)
+    df.drop_duplicates(subset=df, inplace=True)
+    return df
 
 def check_value(data: pd.Series, list_values: str) -> pd.Series:
     """Contrôle de valeur d'un champ parmi une liste de valeur fixe
@@ -171,7 +195,8 @@ def check_date(data: pd.Series) -> pd.Series:
     return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_date_val) == False], "Value \'{}\' does not match the YYYYMMDD date format")
 
 def check_date_val(one_val: str) -> bool:
-    pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$'
+    #pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$'
+    pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?:_000000)?$'
     return bool(re.match(pattern, str(one_val)))
 
 
@@ -194,6 +219,7 @@ if __name__ == "__main__":
     print(check_value(contrat_lsc["SCON_POL_LIB15"], "[\"0\",\"1\"]"))
     #write_csv(check_value(contrat_lsc["SCON_TYPOLOGIE"], ['']),"test")
     # print(check_int(contrat_lsc["SGAR_GAD_TX1"]))
+    get_sheet_name_from_file('F_SAS_L_RISQUE_OPT_MODEL_BM.csv')
 
 
 

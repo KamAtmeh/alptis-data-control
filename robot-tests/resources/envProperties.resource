@@ -10,8 +10,10 @@ Library    ../../scripts_python/toolbox.py
 #Library    ../../controle/ctrl_cplx.py
 
 *** Variables ***
-${spec_contrats}    data/input/LSC-SS01/INPUT_FULL_CLEAN.xlsx
-${input_files_directory}    //fs-cleva.alptis.local/Migration/Back/input/CONTRAT/LSC/
+${map_contrat_LSC_SS01}    data/input/LSC-SS01/MAP_CONTRAT LSC_SS01.xlsx
+${directory_files_SS01}    //fs-cleva.alptis.local/Migration/Back/input/CONTRAT/LSC/
+${start_row_map_SS01}=    {"F_SAS_CONTRAT": 6, "F_SAS_STRUCT_COUV_COTI": 6, "F_SAS_GARANTIE": 5, "F_SAS_RISQUE": 5, "F_SAS_L_RISQUE_OPT_MODEL": 3, "F_SAS_INTERVENANT_POL": 3}
+
 ${filepath1}    data/input/LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv
 ${filepath69}    LSC-SS01/CONTRAT/TEST_C69_F_SAS_CONTRAT_SL.csv
 ${column1}    ['05_ADP_FILS_MAITRE','01_ADP_COLLECTIF','02_ADP_MAITRE','']

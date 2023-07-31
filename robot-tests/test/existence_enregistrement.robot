@@ -1,7 +1,5 @@
 *** Settings ***
-Documentation     A test to verify the API function of Calculator
-...
-...               Keywords are imported from the resource file
+Documentation   Un test pour controler la présence des valeurs de POL_REFECHO entre différents fichiers
 Library    ../../scripts_python/ctrl_cplx.py
 Library    pandas
 
@@ -14,7 +12,6 @@ ${fp_risque_sl}    ../../data/input/LSC-SS01/RISQUE/F_SAS_RISQUE_SL.csv
 ${fp_contrat_sl}    ../../data/input/LSC-SS01/CONTRAT/F_SAS_CONTRAT_SL.csv
 
 *** Test Cases ***
-
 Test Existence Enregistrement Contrat Couv-Coti
     ${contrat}    pandas.Read Csv    filepath_or_bugger=${fp_contrat}    sep=;    header=${0}    low_memory=False
     ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${fp_couv_coti}    sep=;    header=${0}    low_memory=False

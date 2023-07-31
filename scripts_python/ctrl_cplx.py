@@ -113,6 +113,17 @@ def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
         pd.Series: Valeur de ens1 qui ne sont pas dans ens2
     """
     return ens1.loc[ens1.isin(ens2) == False]
+
+def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
+    master_data = data.loc[data["SCON_REFECHO_PERE"].isna() == False]
+    master_result = master_data.loc[master_data["SCON_IDENT_LIEN_PERE"].isna() == True,
+                                    ["SCON_POL_REFECHO", "SCON_REFECHO_PERE", "SCON_IDENT_LIEN_PERE"]]
+
+    other_data = data.loc[data["SCON_IDENT_LIEN_PERE"].isna() == False]
+    other_result = other_data.loc[other_data["SCON_REFECHO_PERE"].isna() == True,
+                                ["SCON_POL_REFECHO", "SCON_REFECHO_PERE", "SCON_IDENT_LIEN_PERE"]]
+
+    return pd.concat([master_result, other_result]) 
     
 
 if __name__ == "__main__":
@@ -126,11 +137,11 @@ if __name__ == "__main__":
     #     string_data = couv_coti_file.read()
     # print(lf_all_gma_tmad_sor(string_csv=string_data, col_list=["SGAR_POL_REFECHO", "SGAR_GMA_CODE", "SGAR_SOR_IDENTIFIANT"]).loc[:, ["SGAR_POL_REFECHO", "SGAR_GMA_CODE", "SGAR_SOR_IDENTIFIANT"]])
 
-    ech_contrat_bm = pd.read_csv("LSC-SS01/CONTRAT/ECH_F_SAS_CONTRAT_BM.csv", sep=";", header=0)
-    ech_cc_bm = pd.read_csv("LSC-SS01/COUV_COTI/ECH_F_SAS_STRUCT_COUV_COTI.csv", sep=";", header=0)
+    ech_contrat_bm = pd.read_csv("data/input/LSC-SS01/CONTRAT/TEST_LIEN_PERE_F_SAS_CONTRAT_BM.csv", sep=";", header=0)
+    ech_cc_bm = pd.read_csv("data/input/LSC-SS01/COUV_COTI/ECH_F_SAS_STRUCT_COUV_COTI.csv", sep=";", header=0)
 
-    print(pol_refecho_comparison(ech_contrat_bm["SCON_POL_REFECHO"], ech_cc_bm["SSCC_POL_REFECHO"]))
-    print(pol_refecho_comparison(ech_cc_bm["SSCC_POL_REFECHO"], ech_contrat_bm["SCON_POL_REFECHO"]))
+    # print(pol_refecho_comparison(ech_contrat_bm["SCON_POL_REFECHO"], ech_cc_bm["SSCC_POL_REFECHO"]))
+    # print(pol_refecho_comparison(ech_cc_bm["SSCC_POL_REFECHO"], ech_contrat_bm["SCON_POL_REFECHO"]))
 
-    
+    print(coherence_lien_pere(ech_contrat_bm))
     

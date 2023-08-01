@@ -98,6 +98,7 @@ def lf_all_gma_tmad_sor(data: pd.DataFrame, col_list: list) -> pd.DataFrame:
     # Retourne la ligne complète de l'alerte
     return data.loc[data_result.index, col_list].sort_values(by=col_list[0])
 
+
 def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
     """Retourne les valeurs de ens1 qui ne sont pas dans ens2
     Correspond à la différence en algèbre relationnelle (ens1 - ens2)
@@ -114,7 +115,16 @@ def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
         "colonne" : ens1.name
     }).drop_duplicates()
 
+
 def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
+    """Vérifie la cohérence entre SCON_IDENT_LIEN_PERE et SCON_REFECHO_PERE dans CONTRAT
+
+    Args:
+        data (pd.DataFrame): Données de contrat_BM
+
+    Returns:
+        pd.DataFrame: Valeur n'étant pas cohérent
+    """
     master_data = data.loc[data["SCON_REFECHO_PERE"].isna() == False]
     master_result = master_data.loc[master_data["SCON_IDENT_LIEN_PERE"].isna() == True,
                                     ["SCON_POL_REFECHO", "SCON_REFECHO_PERE", "SCON_IDENT_LIEN_PERE"]]
@@ -125,6 +135,9 @@ def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
 
     return pd.concat([master_result, other_result]) 
     
+
+
+
 
 if __name__ == "__main__":
     # string_data = ""

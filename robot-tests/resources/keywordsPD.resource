@@ -14,7 +14,7 @@ Read CSV File
 Read Excel File
     [Arguments]    ${filepath}    ${sheet_name}    ${header}=${0}
     [Documentation]    Read an excel file
-    ${excel}    pandas.Read Excel    ${filepath}    sheet_name=${sheet_name}    header=${header}
+    ${excel}    Read Excel Without Empty Rows    ${filepath}    sheet_name=${sheet_name}    header=${header}
     [Return]    ${excel}
 
 Write Result CSV

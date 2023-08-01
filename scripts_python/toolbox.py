@@ -51,6 +51,12 @@ def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/ou
     df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8", mode=mode, header=header)
 
 
+def read_excel_without_empty_rows(filepath, sheet_name, header):
+    # Read the Excel file and skip empty rows at the end
+    df = pd.read_excel(filepath, header=header, sheet_name=sheet_name)
+    df.dropna(how='all', inplace=True)
+    return df
+
 def retrieve_file_name(path: str) -> str:
     """Get the name of the file without the extension
 

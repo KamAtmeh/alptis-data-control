@@ -53,7 +53,7 @@ def lf_gma_tmad_controle(ref_gma_tmad_sor_data: pd.DataFrame, expected_array: np
     return ref_gma_tmad_sor_result
 
 
-def lf_all_gma_tmad_sor(string_csv: str, col_list: list) -> pd.DataFrame:
+def lf_all_gma_tmad_sor(data: pd.DataFrame, col_list: list) -> pd.DataFrame:
     """Vérifie pour un str de csv avec ";" comme séparateur le lien fonctionnel
     entre la 2eme colonne en entrée (gma) et la 3eme colonne (tmad/sor).
 
@@ -65,9 +65,6 @@ def lf_all_gma_tmad_sor(string_csv: str, col_list: list) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Lignes des fichiers ayant levé une alerte
     """
-    
-    mem_io = StringIO(string_csv)
-    data = pd.read_csv(mem_io, sep=";", header=0)
     ref_gma_tmad_sor_data = data.loc[:, col_list].copy()
     
     # Supprime les doublons des colonnes REFECHO, GMA, TMAD/SOR
@@ -99,7 +96,7 @@ def lf_all_gma_tmad_sor(string_csv: str, col_list: list) -> pd.DataFrame:
     data_result = pd.concat([nan_result, gma_1tmad_sce_result, gma_1tmad_uni_result, gma_2tmad_result, gma_3tmad_p_result, gma_3tmad_re_result])
     
     # Retourne la ligne complète de l'alerte
-    return data.loc[data_result.index]
+    return data.loc[data_result.index, col_list].sort_values(by=col_list[0])
 
 def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
     """Retourne les valeurs de ens1 qui ne sont pas dans ens2

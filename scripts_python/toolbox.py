@@ -26,19 +26,19 @@ import os
 from io import StringIO
 # ======================== #
 
-def write_csv(dataframe: pd.DataFrame, filename: str, mode: str = "w"):
+def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/output/", flag_name: str = "FLAG_CONTRAT_", mode: str = "w", header: bool = True):
     df = pd.DataFrame(dataframe)
     # Save the DataFrame to a CSV file
     current_date = datetime.datetime.now().strftime("%Y%m%d")
-    outputdir = "data/output/" + current_date
+    outputdir = output_dir + current_date + "/"
     # Create directory with date as name
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
         print(f"Folder '{outputdir}' created successfully.")
     else:
         print(f"Folder '{outputdir}' already exists.")
-    csv_file_path = outputdir + "/FLAG_CONTRAT_" + filename.replace(".csv", "") + "_" + current_date + ".csv"
-    df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8", mode=mode)
+    csv_file_path = outputdir + flag_name + filename.replace(".csv", "") + "_" + current_date + ".csv"
+    df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8", mode=mode, header=header)
 
 def retrieve_file_name(path: str) -> str:
     return os.path.basename(path)

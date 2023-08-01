@@ -112,7 +112,10 @@ def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
     Returns:
         pd.Series: Valeur de ens1 qui ne sont pas dans ens2
     """
-    return ens1.loc[ens1.isin(ens2) == False]
+    return pd.DataFrame({
+        "result" : ens1.loc[ens1.isin(ens2) == False],
+        "colonne" : ens1.name
+    }).drop_duplicates()
 
 def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
     master_data = data.loc[data["SCON_REFECHO_PERE"].isna() == False]

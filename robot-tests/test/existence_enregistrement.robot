@@ -11,7 +11,7 @@ ${fp_garantie}    ../../data/input/LSC-SS01/ALL/F_SAS_GARANTIE_BM.csv
 ${fp_risque}    ../../data/input/LSC-SS01/ALL/F_SAS_RISQUE_BM.csv
 ${fp_risque_sl}    ../../data/input/LSC-SS01/ALL/F_SAS_RISQUE_SL.csv
 ${fp_contrat_sl}    ../../data/input/LSC-SS01/ALL/F_SAS_CONTRAT_SL.csv
-${fp_result}    ../../data/output/existence_enregistrement_output.csv
+${fp_result}    existence_enregistrement_output.csv
 
 *** Test Cases ***
 Test Existence Enregistrement Contrat Couv-Coti
@@ -19,11 +19,12 @@ Test Existence Enregistrement Contrat Couv-Coti
     ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${fp_couv_coti}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification de contrat - couv_coti ${\n}
     ${result}    ctrl_cplx.pol_refecho_comparison    ${contrat.get('SCON_POL_REFECHO')}    ${couv_coti.get('SSCC_POL_REFECHO')}
+    toolbox.write_csv   ${result}    ${fp_result}    data/output/    FLAG_CONTRAT_COUV_COTI_    a    ${True}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result}
 
     Log To Console    Vérification de couv_coti - contrat
     ${result}    ctrl_cplx.pol_refecho_comparison    ${couv_coti.get('SSCC_POL_REFECHO')}    ${contrat.get('SCON_POL_REFECHO')}
-    toolbox.write_csv   ${result}    ${fp_result}   
+    toolbox.write_csv   ${result}    ${fp_result}    data/output/    FLAG_CONTRAT_COUV_COTI_    a    ${False}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result}
 
 
@@ -32,10 +33,12 @@ Test Existence Enregistrement Contrat Garantie
     ${garantie}    pandas.Read Csv    filepath_or_bugger=${fp_garantie}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification de contrat - garantie
     ${result}    ctrl_cplx.pol_refecho_comparison    ${contrat.get('SCON_POL_REFECHO')}    ${garantie.get('SGAR_POL_REFECHO')}
+    toolbox.write_csv   ${result}    ${fp_result}    data/output/    FLAG_CONTRAT_GARANTIE_    a    ${True}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result}
 
     Log To Console    Vérification de garantie - contrat
     ${result}    ctrl_cplx.pol_refecho_comparison    ${garantie.get('SGAR_POL_REFECHO')}    ${contrat.get('SCON_POL_REFECHO')}
+    toolbox.write_csv   ${result}    ${fp_result}    data/output/    FLAG_CONTRAT_GARANTIE_    a    ${False}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}
 
 
@@ -44,6 +47,7 @@ Test Existence Enregistrement Risque Contrat
     ${risque}    pandas.Read Csv    filepath_or_bugger=${fp_risque}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification de risque - contrat
     ${result}    ctrl_cplx.pol_refecho_comparison    ${risque.get('SRIS_POL_REFECHO')}    ${contrat.get('SCON_POL_REFECHO')}
+    toolbox.write_csv   ${result}    ${fp_result}    data/output/    FLAG_CONTRAT_RISQUE_    a    ${True}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}
     
 
@@ -52,6 +56,7 @@ Test Existence Enregistrement RisqueSL Contrat
     ${risque}    pandas.Read Csv    filepath_or_bugger=${fp_risque_sl}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification de risque SL - contrat
     ${result}    ctrl_cplx.pol_refecho_comparison    ${risque.get('SRIS_POL_REFECHO_RISQUE_PERE')}    ${contrat.get('SCON_POL_REFECHO')}
+    toolbox.write_csv   ${result}    ${fp_result}    data/output/    FLAG_CONTRAT_RISQUE_SL_    a    ${True}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}
 
 Test Existence Enregistrement ContratSL Contrat
@@ -59,4 +64,5 @@ Test Existence Enregistrement ContratSL Contrat
     ${contratSL}    pandas.Read Csv    filepath_or_bugger=${fp_contrat_sl}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification de contrat SL - contrat BM
     ${result}    ctrl_cplx.pol_refecho_comparison    ${contratSL.get('SCON_FILS_MAIT_POL_REFECHO')}    ${contratBM.get('SCON_POL_REFECHO')}
+    toolbox.write_csv   ${result}    ${fp_result}    data/output/    FLAG_CONTRAT_CONTRAT_SL_    a    ${False}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}

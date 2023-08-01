@@ -108,11 +108,11 @@ Verify Data Type
     # Retrieve the condition of the variable type from within the parenthesis only if type is not equal to DATE
     ${format}=    Run Keyword If    '${type.lower()}' != 'date'    Set Variable    ${parts[1][:-1]}
 
-    IF    '${type.lower()}' == 'number'
-        ${result}    Verify Number    ${data}    ${format}
-
-    ELSE IF    '${type.lower()}' == 'varchar2'
+    IF    '${type.lower()}' == 'varchar2'
         ${result}    Verify String    ${data}    ${format}
+
+    ELSE IF    '${type.lower()}' == 'number'
+        ${result}    Verify Number    ${data}    ${format}
 
     ELSE IF    '${type.lower()}' == 'date'
         ${result}    Verify Date    ${data}

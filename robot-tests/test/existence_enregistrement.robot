@@ -1,15 +1,17 @@
 *** Settings ***
 Documentation   Un test pour controler la présence des valeurs de POL_REFECHO entre différents fichiers
 Library    ../../scripts_python/ctrl_cplx.py
+Library    ../../scripts_python/toolbox.py
 Library    pandas
 
 *** Variables ***
-${fp_contrat}    ../../data/input/LSC-SS01/CONTRAT/F_SAS_CONTRAT_BM.csv
-${fp_couv_coti}    data/input/LSC-SS01/COUV_COTI/F_SAS_STRUCT_COUV_COTI.csv
-${fp_garantie}    ../../data/input/LSC-SS01/GARANTIE/F_SAS_GARANTIE_BM.csv
-${fp_risque}    ../../data/input/LSC-SS01/RISQUE/F_SAS_RISQUE_BM.csv
-${fp_risque_sl}    ../../data/input/LSC-SS01/RISQUE/F_SAS_RISQUE_SL.csv
-${fp_contrat_sl}    ../../data/input/LSC-SS01/CONTRAT/F_SAS_CONTRAT_SL.csv
+${fp_contrat}    ../../data/input/LSC-SS01/ALL/F_SAS_CONTRAT_BM.csv
+${fp_couv_coti}    data/input/LSC-SS01/ALL/F_SAS_STRUCT_COUV_COTI.csv
+${fp_garantie}    ../../data/input/LSC-SS01/ALL/F_SAS_GARANTIE_BM.csv
+${fp_risque}    ../../data/input/LSC-SS01/ALL/F_SAS_RISQUE_BM.csv
+${fp_risque_sl}    ../../data/input/LSC-SS01/ALL/F_SAS_RISQUE_SL.csv
+${fp_contrat_sl}    ../../data/input/LSC-SS01/ALL/F_SAS_CONTRAT_SL.csv
+${fp_result}    ../../data/output/existence_enregistrement_output.csv
 
 *** Test Cases ***
 Test Existence Enregistrement Contrat Couv-Coti
@@ -21,6 +23,7 @@ Test Existence Enregistrement Contrat Couv-Coti
 
     Log To Console    Vérification de couv_coti - contrat
     ${result}    ctrl_cplx.pol_refecho_comparison    ${couv_coti.get('SSCC_POL_REFECHO')}    ${contrat.get('SCON_POL_REFECHO')}
+    toolbox.write_csv   ${result}    ${fp_result}   
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result}
 
 

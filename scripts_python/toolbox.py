@@ -26,7 +26,7 @@ import os
 from io import StringIO
 # ======================== #
 
-def write_csv(dataframe: pd.DataFrame, filename: str):
+def write_csv(dataframe: pd.DataFrame, filename: str, mode: str = "w"):
     df = pd.DataFrame(dataframe)
     # Save the DataFrame to a CSV file
     current_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -38,7 +38,7 @@ def write_csv(dataframe: pd.DataFrame, filename: str):
     else:
         print(f"Folder '{outputdir}' already exists.")
     csv_file_path = outputdir + "/FLAG_CONTRAT_" + filename.replace(".csv", "") + "_" + current_date + ".csv"
-    df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8")
+    df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8", mode=mode)
 
 def retrieve_file_name(path: str) -> str:
     return os.path.basename(path)

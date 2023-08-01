@@ -31,8 +31,8 @@ Verify Contrat LSC SS01
             ${column_results}    Get Verification Results    ${file_name}    ${excel.loc[${row},'Zone SAS']}    ${result_table}
             Log    Group column results into one big file    console=${True}
             ${file_results}    Concatenate Dataframes    ${file_results}    ${column_results}
-            Log    Save the results table into a CSV file    console=${True}
-            Write Result CSV    ${file_results}    ${file_name}
+            Log    If results table is not emtpy, save the table into a CSV file    console=${True}
+            Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${file_name}
         END
 
         Log    End of verification on file ${file_name}    console=${True}

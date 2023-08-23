@@ -27,7 +27,11 @@ ${filepath69}    LSC-SS01/CONTRAT/TEST_C69_F_SAS_CONTRAT_SL.csv
 ${column1}    ['05_ADP_FILS_MAITRE','01_ADP_COLLECTIF','02_ADP_MAITRE','']
 
 # Filepath to data
-${fp_contrat}    ../../LSC-SS01/CONTRAT/F_SAS_CONTRAT_BM.csv
-${fp_couv_coti}    ../../LSC-SS01/COUV_COTI/F_SAS_STRUCT_COUV_COTI.csv
+${fp_contrat}    F_SAS_CONTRAT_BM.csv
+${fp_couv_coti}    F_SAS_STRUCT_COUV_COTI.csv
+${fp_garantie}    F_SAS_GARANTIE_BM.csv
+${fp_risque}    F_SAS_RISQUE_BM.csv
+${fp_risque_sl}    F_SAS_RISQUE_SL.csv
+${fp_contrat_sl}    F_SAS_CONTRAT_SL.csv
 
 ## Create dictionary with column names and accepted values

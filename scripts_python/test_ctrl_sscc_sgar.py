@@ -22,67 +22,156 @@ import pandas as pd
 import numpy as np
 # ======================== #
 
+def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -> tuple:
+    """Vérifie la correspondance entre les fichiers STRUCT_COUV_COTI et GARANTIE
+    En sortie nous avons à gauche de la sortie les lignes de STRUCT_COUV_COTI 
+    qui ne correspondent pas au ligne de GARANTIE dans la partie droite
 
-sscc_fp = "data/input/LSC-SS01/COUV_COTI/ECH_F_SAS_STRUCT_COUV_COTI.csv"
-sgar_fp = "data/input/LSC-SS01/GARANTIE/ECH_F_SAS_GARANTIE_BM.csv"
+    Args:
+        sscc_data (pd.DataFrame): Dataframe du fichier STRUCT_COUV_COTI
+        sgar_data (pd.DataFrame): Dataframe du fichier GARANTIE
 
-import os
+    Returns:
+        tuple: (pd.DataFrame, pd.Dataframe) 
+    """
+    ## First projection
+    print("Doing first projection...")
+    sscc_data = sscc_data.loc[
+        :, 
+        [
+            "SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE",
+            "SSCC_SOR_MODELE_FORMULE_LIB", "SSCC_CREER_AY_C", "SSCC_CREER_AY_E",
+            "SSCC_NIEME_ENF_GRATUIT", "SSCC_SOR_DATEDEBUT"
+        ]
+    ]
 
-print(os.listdir())
+    sgar_data = sgar_data.loc[
+        :,
+        [
+            "SGAR_POL_REFECHO", "SGAR_GMA_CODE", "SGAR_SOR_IDENTIFIANT",
+            "SGAR_SOR_DATEDEBUT", "SGAR_SOR_MODELE_FORM_LIB", "SGAR_SOR_DATEFIN",
+            "SGAR_SAR_AY_QUALITE", "SGAR_SAR_RANG_REMB"
+        ]]
 
-sscc_data = pd.read_csv(sscc_fp, sep=";", header=0)
-sgar_data = pd.read_csv(sgar_fp, sep=";", header=0)
+    ## Sorting data (take care of date order)
+    print("Sorting data...")
+    sscc_data = sscc_data.sort_values([
+    "SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE",
+    "SSCC_SOR_MODELE_FORMULE_LIB", "SSCC_SOR_DATEDEBUT"])
 
-print(sscc_data)
-print(sgar_data)
+    sgar_data = sgar_data.sort_values([
+    "SGAR_POL_REFECHO", "SGAR_GMA_CODE", "SGAR_SOR_IDENTIFIANT",
+    "SGAR_SOR_MODELE_FORM_LIB", "SGAR_SOR_DATEDEBUT"])
+    
+    # Date handling 
+    print("Date handling...")
+    sscc_data["SSCC_SOR_DATEDEBUT"] = pd.to_datetime(sscc_data["SSCC_SOR_DATEDEBUT"], format="%Y%m%d")
+    sgar_data["SGAR_SOR_DATEDEBUT"] = pd.to_datetime(sgar_data["SGAR_SOR_DATEDEBUT"], format="%Y%m%d")
+    sgar_data["SGAR_SOR_DATEFIN"] = pd.to_datetime(sgar_data["SGAR_SOR_DATEFIN"], format="%Y%m%d")
 
-del(sscc_fp, sgar_fp)
+    # Add datefin
+    print("Creating DATEFIN for SSCC...")
+    sscc_group = sscc_data.groupby(
+        [
+            "SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE",
+            "SSCC_SOR_MODELE_FORMULE_LIB", "SSCC_CREER_AY_C", "SSCC_CREER_AY_E",
+            "SSCC_NIEME_ENF_GRATUIT"
+        ],
+        group_keys=True,
+        dropna=False,
+        sort=True
+    )["SSCC_SOR_DATEDEBUT"]
 
-sscc_temp = sscc_data.loc[:,
-                    ["SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE", "SSCC_SOR_MODELE_FORMULE_LIB",
-                     "SSCC_CREER_AY_C", "SSCC_CREER_AY_E", "SSCC_NIEME_ENF_GRATUIT", "SSCC_SOR_DATEDEBUT"]]
+    sscc_data = sscc_data.assign(SSCC_SOR_DATEFIN = sscc_group.shift(-1))
 
-sscc_temp["SSCC_SOR_DATEDEBUT"] = pd.to_datetime(sscc_temp["SSCC_SOR_DATEDEBUT"], format="%Y%m%d")
+    # Add ayant droit
+    print("Creating AY_QUALITE for SSCC...")
+    sscc_data["SSCC_SAR_AY_QUALITE"] = [["A"]] * len(sscc_data) 
 
-print(sscc_temp)
+    sscc_data.loc[sscc_data["SSCC_CREER_AY_C"] == 1, "SSCC_SAR_AY_QUALITE"] = \
+        sscc_data.loc[sscc_data["SSCC_CREER_AY_C"] == 1, "SSCC_SAR_AY_QUALITE"]\
+            .apply(lambda x: x + ["C"])
+    sscc_data.loc[sscc_data["SSCC_CREER_AY_E"] == 1, "SSCC_SAR_AY_QUALITE"] = \
+        sscc_data.loc[sscc_data["SSCC_CREER_AY_E"] == 1, "SSCC_SAR_AY_QUALITE"]\
+            .apply(lambda x: x + ["E"])
 
-sscc_group = sscc_temp.groupby(["SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE", "SSCC_SOR_MODELE_FORMULE_LIB",
-                     "SSCC_CREER_AY_C", "SSCC_CREER_AY_E", "SSCC_NIEME_ENF_GRATUIT"], group_keys=True, dropna=False)["SSCC_SOR_DATEDEBUT"]
+    sscc_data = sscc_data.explode("SSCC_SAR_AY_QUALITE")
 
-print(sscc_group.apply(print))
+    ## Add enieme enfant
+    print("Add RANG_REMB for SSCC...")
+    sscc_data["SSCC_SAR_RANG_REMB"] = [[]] * len(sscc_data)
+    sscc_data.loc[
+        (sscc_data["SSCC_NIEME_ENF_GRATUIT"] > 0) & 
+        (sscc_data["SSCC_SAR_AY_QUALITE"] == "E"), "SSCC_SAR_RANG_REMB"
+        ] =\
+            sscc_data.loc[
+                (sscc_data["SSCC_NIEME_ENF_GRATUIT"] > 0) & 
+                (sscc_data["SSCC_SAR_AY_QUALITE"] == "E"), "SSCC_SAR_RANG_REMB"
+                ]\
+                    .apply(lambda x: [1,2])
+    sscc_data = sscc_data.explode("SSCC_SAR_RANG_REMB")
+
+    # rename column
+    print("Selecting and renaming columns...") 
+    sgar_slct = sgar_data\
+        .loc[:,["SGAR_POL_REFECHO", "SGAR_GMA_CODE", "SGAR_SOR_IDENTIFIANT",
+                                "SGAR_SOR_DATEDEBUT", "SGAR_SOR_MODELE_FORM_LIB", "SGAR_SOR_DATEFIN",
+                                "SGAR_SAR_AY_QUALITE", "SGAR_SAR_RANG_REMB"]]\
+        .rename(columns={
+            "SGAR_POL_REFECHO": "POL_REFECHO",
+            "SGAR_GMA_CODE": "GMA_CODE",
+            "SGAR_SOR_IDENTIFIANT": "TMAD_CODE",
+            "SGAR_SOR_DATEDEBUT": "SOR_DATEDEBUT",
+            "SGAR_SOR_MODELE_FORM_LIB": "SOR_MODELE_FORM_LIB",
+            "SGAR_SOR_DATEFIN": "SOR_DATEFIN",
+            "SGAR_SAR_AY_QUALITE": "SAR_AY_QUALITE",
+            "SGAR_SAR_RANG_REMB": "SAR_RANG_REMB"
+            })\
+        .drop_duplicates()
+
+    sscc_slct = sscc_data\
+        .loc[:, ["SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE",
+                "SSCC_SOR_DATEDEBUT", "SSCC_SOR_MODELE_FORMULE_LIB", "SSCC_SOR_DATEFIN",
+                "SSCC_SAR_AY_QUALITE", "SSCC_SAR_RANG_REMB"]]\
+        .rename(columns={
+            "SSCC_POL_REFECHO": "POL_REFECHO",
+            "SSCC_GMA_CODE": "GMA_CODE",
+            "SSCC_TMAD_CODE": "TMAD_CODE",
+            "SSCC_SOR_DATEDEBUT": "SOR_DATEDEBUT",
+            "SSCC_SOR_MODELE_FORMULE_LIB": "SOR_MODELE_FORM_LIB",
+            "SSCC_SOR_DATEFIN": "SOR_DATEFIN",
+            "SSCC_SAR_AY_QUALITE": "SAR_AY_QUALITE",
+            "SSCC_SAR_RANG_REMB": "SAR_RANG_REMB"  
+        })\
+        .drop_duplicates()
+
+    # Merging data with outer join to retrieve data that does not fit between SGAR and SSCC
+    print("Merging SSCC and SGAR to highlight mistakes...")
+    sscc_sgar_merged = pd.merge(
+                sscc_slct, sgar_slct, 
+                on= [
+                    "POL_REFECHO", "GMA_CODE", "TMAD_CODE",
+                    "SOR_DATEDEBUT", "SOR_MODELE_FORM_LIB", "SOR_DATEFIN",
+                    "SAR_AY_QUALITE", "SAR_RANG_REMB"],
+                    how="outer", indicator="Exist")
+
+    return (
+        sscc_sgar_merged.loc[sscc_sgar_merged["Exist"] == "left_only"], 
+        sscc_sgar_merged.loc[sscc_sgar_merged["Exist"] == "right_only"]
+    )
 
 
-sscc_temp = sscc_temp.assign(SSCC_SOR_DATEFIN = sscc_group.shift(-1))
 
-print(sscc_temp)
+if __name__ == "__init__":
+    sscc_fp = "data/input/LSC-SS01/COUV_COTI/F_SAS_STRUCT_COUV_COTI.csv"
+    sgar_fp = "data/input/LSC-SS01/GARANTIE/F_SAS_GARANTIE_BM.csv"
 
-a = ["A"]
-sscc_temp["aya"] = [a] * len(sscc_temp) 
+    sscc_data = pd.read_csv(sscc_fp, sep=";", header=0)
+    sgar_data = pd.read_csv(sgar_fp, sep=";", header=0)
 
-sscc_temp.loc[sscc_temp["SSCC_CREER_AY_C"] == 1, "aya"] = sscc_temp.loc[sscc_temp["SSCC_CREER_AY_C"] == 1, "aya"].apply(lambda x: x + ["C"])
-sscc_temp.loc[sscc_temp["SSCC_CREER_AY_E"] == 1, "aya"] = sscc_temp.loc[sscc_temp["SSCC_CREER_AY_E"] == 1, "aya"].apply(lambda x: x + ["E"])
+    del(sscc_fp, sgar_fp)
 
-
-sscc_ay = sscc_temp.explode("aya")
-print(sscc_ay)
-
-sscc_ay.to_csv("data/output/test.csv", sep=";")
-
-# sscc_temp.loc[(sscc_temp["SSCC_CREER_AY_C"] == 0) & (sscc_temp["SSCC_CREER_AY_E"] == 0), "aya"] = [["A"]] * len(sscc_temp.loc[(sscc_temp["SSCC_CREER_AY_C"] == 0) & (sscc_temp["SSCC_CREER_AY_E"] == 0)]) 
-
-
-# a = ["A"]
-# sscc_temp["aya"] = [a] * len(sscc_temp) 
-# sscc_temp.loc[sscc_temp["SSCC_CREER_AY_E"] == 1, "aya"] = [["A", "E"]] * len(sscc_temp.loc[sscc_temp["SSCC_CREER_AY_E"] == 1])
-
-# print(sscc_temp)
-
-# lol = sscc_group["SSCC_SOR_DATEDEBUT"].shift(-1).apply(print)
-# print(lol)
-# sscc_group.apply(print)
-
-
-
-
-
-
+    result_sscc, result_sgar = verify_couv_coti_contrat(sscc_data=sscc_data, sgar_data=sgar_data)
+    
+    result_sscc.to_csv("data/output/result_sscc.csv", sep=";", index=False)
+    result_sgar.to_csv("data/output/result_sgar.csv", sep=";", index=False)

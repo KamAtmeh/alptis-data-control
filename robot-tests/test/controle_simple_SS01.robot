@@ -3,6 +3,7 @@ Documentation    Ensemble des controles simples appliqués sur SS01
 Resource    ../resources/keywordsPD.resource
 
 *** Variables ***
+${product_name}    LSC_SS01_
 ${input_files_directory}    ../../data/input/LSC-SS01/ALL/
 
 *** Test Cases ***
@@ -13,6 +14,7 @@ Verify Contrat LSC SS01
     FOR    ${file}    IN    @{input_files}
         Log    Get file name of ${file}    console=${True}
         ${file_name}   Get File Name    ${file}
+        ${output_file_name}    Catenate    SEPARATOR=_    ${product_name}    ${file_name}
         Log    Read input CSV file ${file}    console=${True}
         ${csv_data}    Read CSV File    ${file}
         Log    Get the sheet name to read    console=${True}
@@ -32,7 +34,7 @@ Verify Contrat LSC SS01
             Log    Group column results into one big file    console=${True}
             ${file_results}    Concatenate Dataframes    ${file_results}    ${column_results}
             Log    If results table is not emtpy, save the table into a CSV file    console=${True}
-            Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${file_name}
+            Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}
         END
 
         Log    End of verification on file ${file_name}    console=${True}

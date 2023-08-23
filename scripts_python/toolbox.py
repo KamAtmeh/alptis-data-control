@@ -80,7 +80,7 @@ def get_sheet_name_from_file(filename: str) -> str:
     """
     # Define the regular expression pattern. We retrieve the name before a possible _BM.csv or _SL.csv.
     # If there is no BM or SL then we retrieve the name before the .csv
-    pattern = r"^(.*?)_?(?:BM|SL)?\.csv$"
+    pattern = r"^(.*?)(?:_BM|_SL|_RETRAIT)*\.csv$"
     # Use re.search to find the match
     match = re.search(pattern, filename)
     if match:

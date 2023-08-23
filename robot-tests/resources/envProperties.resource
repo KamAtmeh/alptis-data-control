@@ -16,6 +16,10 @@ ${directory_files_SS01}    //fs-cleva.alptis.local/Migration/Back/input/CONTRAT/
 ${start_row_map_SS01}=    {"F_SAS_CONTRAT": 6, "F_SAS_STRUCT_COUV_COTI": 6, "F_SAS_GARANTIE": 5, "F_SAS_RISQUE": 5, "F_SAS_L_RISQUE_OPT_MODEL": 3, "F_SAS_INTERVENANT_POL": 3}
 
 ## PM01 environment
+${map_contrat_PM01}    data/input/PM01/MAP_CONTRAT_SUR_MESURE_PREV_PM01.xlsx
+# ${directory_files_SS01}    //fs-cleva.alptis.local/Migration/Back/input/CONTRAT/PM01
+${directory_files_PM01}    data/input/PM01/ALL
+${start_row_map_PM01}=    {"F_SAS_CONTRAT": 6, "F_SAS_STRUCT_COUV_COTI": 6, "F_SAS_GARANTIE": 4, "F_SAS_RISQUE": 3, "F_SAS_INTERVENANT_POL": 3}
 
 
 ${filepath1}    data/input/LSC-SS01/CONTRAT/TEST_C1_F_SAS_CONTRAT_SL.csv

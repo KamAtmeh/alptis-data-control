@@ -1,39 +1,80 @@
 *** Settings ***
 Documentation    Un test pour controler la présence d'une valeur dans SCON_IDENT_LIEN_PERE
 ...                s'il existe une valeur dans SCON_REFECHO_PERE
-Resource    ../resources/keywordsPD.resource
-Library    ../../scripts_python/ctrl_cplx.py
-Library    pandas
+Resource    ../resources/keywordsCTRLCPLX.resource
 
 *** Variables ***
 # Output #
 ${fp_result_contrat}    SS01_lien_pere.csv
 ${fp_result_gma}    SS01_gma_tmad_sor.csv
+${fp_existence_result}    SS01_existence_enregistrement_output.csv
+${fp_result_sscc}    SS01_quali_period_sscc_result.csv
+${fp_result_sgar}    SS01_quali_period_sgar_result.csv
 
 *** Test Cases ***
 ### Controle de coherence ###
 Test Coherence Lien Pere
-    
-    ${this_fp_contrat}    Set Variable    Catenate    SEPARATOR=/    ${directory_files_SS01}    ${fp_contrat}
-    ${contrat}    pandas.Read Csv    filepath_or_bugger=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
-    Log To Console    Vérification de le fichier F_SAS_CONTRAT_BM la cohérence entre lien père
-    ${result}    ctrl_cplx.coherence_lien_pere    ${contrat}
-    toolbox.write_csv   ${result}    ${fp_result_contrat}    data/output/    FLAG_COHERENCE_CONTRAT_    a    ${True}
+    ${result}    Verify Coherence Lien Pere    ${directory_files_SS01}
+    toolbox.write_csv   ${result}    ${fp_result_contrat}    ${directory_output_SS01}    FLAG_COHERENCE_CONTRAT_    a    ${True}
     Should Be Empty    ${result}    Les valeurs entre REFECHO_PERE et IDENT_LIEN_PERE ne sont pas cohérent ${result}
 
 
 ### Controle lien fonctionnel ###
 Test Lien Fonctionnel GMA TMAD
-    ${couv_coti}    pandas.Read Csv    filepath_or_bugger=${fp_couv_coti}    sep=;    header=${0}    low_memory=False
-    Log To Console    Vérification du lien fonctionnel GMA code - TMAD code sur COUV_COTI
-    ${result_data}    ctrl_cplx.lf_all_gma_tmad_sor    ${couv_coti}    ['SSCC_POL_REFECHO', 'SSCC_GMA_CODE', 'SSCC_TMAD_CODE']
-    toolbox.write_csv    ${result_data}    ${fp_result_gma}    data/output/    FLAG_COHERENCE_SSCC_    a    ${True}
+    ${result_data}    Verify Lien Fonctionnel GMA TMAD    ${directory_files_SS01} 
+    toolbox.write_csv    ${result_data}    ${fp_result_gma}    ${directory_output_SS01}    FLAG_COHERENCE_SSCC_    a    ${True}
     Should Be Empty    ${result_data}    Les valeurs de TMAD CODE ne correspondent pas à leurs GMA CODE ${result_data}
 
 Test Lien Fonctionnel GMA SOR
-    ${garantie}    pandas.Read Csv    filepath_or_bugger=${fp_garantie}    sep=;    header=${0}    low_memory=False
-    Log To Console    Vérification du lien fonctionnel GMA code - SOR identifiant sur GARANTIE
-    ${result_data}    ctrl_cplx.lf_all_gma_tmad_sor    ${garantie}    ['SGAR_POL_REFECHO', 'SGAR_GMA_CODE', 'SGAR_SOR_IDENTIFIANT']
-    toolbox.write_csv    ${result_data}    ${fp_result_gma}    data/output/    FLAG_COHERENCE_SGAR_    a    ${True}
+    ${result_data}    Verify Lien Fonctionnel GMA SOR    ${directory_files_SS01}
+    toolbox.write_csv    ${result_data}    ${fp_result_gma}    ${directory_output_SS01}    FLAG_COHERENCE_SGAR_    a    ${True}
     Should Be Empty    ${result_data}    Les valeurs de SOR IDENTIFIANT ne correspondent pas à leurs GMA CODE ${result_data}
 
+### Existence Enregistrement ###
+Test Existence Enregistrement Contrat Couv-Coti
+    ${result_contrat_cc}    ${result_cc_contrat}    Verify Existence Enregistrement Contrat Couv-Coti    ${directory_files_SS01}
+    
+    toolbox.write_csv   ${result_contrat_cc}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_COUV_COTI_    a    ${True}
+    toolbox.write_csv   ${result_cc_contrat}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_COUV_COTI_    a    ${False}
+
+    Should Be Empty    ${result_contrat_cc}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_contrat_cc}    
+    Should Be Empty    ${result_cc_contrat}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_cc_contrat}
+
+
+Test Existence Enregistrement Contrat Garantie
+    ${result_con_gar}    ${result_gar_con}    Verify Existence Enregistrement Contrat Garantie    ${directory_files_SS01}
+
+    toolbox.write_csv   ${result_con_gar}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_GARANTIE_    a    ${True}
+    toolbox.write_csv   ${result_gar_con}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_GARANTIE_    a    ${False}
+
+    Should Be Empty    ${result_con_gar}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_con_gar}
+    Should Be Empty    ${result_gar_con}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result_gar_con}
+
+
+Test Existence Enregistrement Risque Contrat
+    ${result}    Verify Existence Enregistrement Risque Contrat    ${directory_files_SS01}
+    
+    toolbox.write_csv   ${result}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_RISQUE_    a    ${True}
+        Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}
+    
+
+Test Existence Enregistrement RisqueSL Contrat
+    ${result}    Verify Existence Enregistrement RisqueSL Contrat    ${directory_files_SS01}
+
+    toolbox.write_csv   ${result}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_RISQUE_SL_    a    ${True}
+    Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}
+
+Test Existence Enregistrement ContratSL Contrat
+    ${result}    Verify Existence Enregistrement ContratSL Contrat    ${directory_files_SS01}
+
+    toolbox.write_csv   ${result}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_CONTRAT_SL_    a    ${False}
+    Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}
+
+### SSCC GARANTIE ###
+Test Controle Couv-Coti et Garantie
+    ${result_sscc}    ${result_sgar}    Verify Controle Couv-Coti et Garantie    ${directory_files_SS01}
+    
+    toolbox.write_csv    ${result_sscc}    ${fp_result_sscc}    ${directory_output_SS01}    FLAG_LINE_NOT_IN_SGAR_
+    toolbox.write_csv    ${result_sgar}    ${fp_result_sgar}    ${directory_files_SS01}    FLAG_LINE_NOT_IN_SSCC_
+    Should Be Empty    ${result_sscc}    Des valeurs de SSCC ne se retrouvent pas dans SGAR veuillez consulter les fichiers de LOG
+    Should Be Empty    ${result_sgar}    Des valeurs de SGAR ne se retrouvent pas dans SSCC veuillez consulter les fichiers de LOG

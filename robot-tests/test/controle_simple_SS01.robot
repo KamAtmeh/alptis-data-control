@@ -4,7 +4,6 @@ Resource    ../resources/keywordsPD.resource
 
 *** Variables ***
 ${product_name}    LSC_SS01_
-${input_files_directory}    ../../data/input/LSC-SS01/ALL/
 
 *** Test Cases ***
 Verify Contrat LSC SS01

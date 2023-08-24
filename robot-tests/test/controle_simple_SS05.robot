@@ -1,14 +1,14 @@
 *** Settings ***
-Documentation    Ensemble des controles simples appliqués sur PM01
+Documentation    Ensemble des controles simples appliqués sur SS05
 Resource    ../resources/keywordsPD.resource
 
 *** Variables ***
-${product_name}    PM01
+${product_name}    LSC_SS05_
 
 *** Test Cases ***
-Verify Contrat PM01
-    Log    Retrieve input CSV files from ${directory_files_PM01}    console=${True}
-    ${input_files}    List CSV Files In Directory    ${directory_files_PM01}
+Verify Contrat LSC SS05
+    Log    Retrieve input CSV files from ${directory_files_SS05}    console=${True}
+    ${input_files}    List CSV Files In Directory    ${directory_files_SS05}
     Log    Iterate over files for verification    console=${True}
     FOR    ${file}    IN    @{input_files}
         Log    Get file name of ${file}    console=${True}
@@ -19,9 +19,9 @@ Verify Contrat PM01
         Log    Get the sheet name to read    console=${True}
         ${sheet_name}    Get Sheet Name From File    ${file_name}
         Log    Get the row from which we should start reading the excel file    console=${True}
-        ${header}    Get Row To Start Reading Excel From    ${start_row_map_PM01}    ${sheet_name}
+        ${header}    Get Row To Start Reading Excel From    ${start_row_map_SS05}    ${sheet_name}
         Log    Import specifications file    console=${True}
-        ${excel}    Read Excel File    ${map_contrat_PM01}    ${sheet_name}    header=${header}
+        ${excel}    Read Excel File    ${map_contrat_SS05}    ${sheet_name}    header=${header}
         ${file_results}    Create Empty Dataframe
 
         Log    Iterate over map to verify the specified columns    console=${True}

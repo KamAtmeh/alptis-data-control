@@ -177,7 +177,7 @@ def drop_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     # Remove the num_line column to be able to drop duplicates accurately
     df.drop("num_line", axis=1, inplace=True)
     # Remove duplicated rows
-    df.drop_duplicates(subset=df, inplace=True)
+    df.drop_duplicates(subset=df.columns, inplace=True)
     # Return the final dataframe
     return df
 

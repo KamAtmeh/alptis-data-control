@@ -33,7 +33,7 @@ Verify Contrat PM01
             Log    Group column results into one big file    console=${True}
             ${file_results}    Concatenate Dataframes    ${file_results}    ${column_results}
             Log    If results table is not emtpy, save the table into a CSV file    console=${True}
-            Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}
+            Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}    ${directory_output_PM01}
         END
 
         Log    End of verification on file ${file_name}    console=${True}

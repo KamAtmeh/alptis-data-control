@@ -198,6 +198,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
     )["SSCC_SOR_DATEDEBUT"]
 
     sscc_data = sscc_data.assign(SSCC_SOR_DATEFIN = sscc_group.shift(-1))
+    del(sscc_group)
 
     ## Add ayant droit
     print("Creating AY_QUALITE for SSCC...")
@@ -243,6 +244,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
             "SGAR_SAR_RANG_REMB": "SAR_RANG_REMB"
             })\
         .drop_duplicates()
+    del(sgar_data)
 
     sscc_slct = sscc_data\
         .loc[:, ["SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE",
@@ -259,6 +261,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
             "SSCC_SAR_RANG_REMB": "SAR_RANG_REMB"  
         })\
         .drop_duplicates()
+    del(sscc_data)
 
     ## Add index in column 
     sscc_slct["sscc_index"] = sscc_slct.index + 1
@@ -276,6 +279,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
                     "SAR_AY_QUALITE", "SAR_RANG_REMB"],
                     how="outer", indicator="Exist")
 
+    del(sgar_slct, sscc_slct)
     # Index column to int64
     sscc_sgar_merged["sscc_index"] = sscc_sgar_merged["sscc_index"].fillna(0)
     sscc_sgar_merged["sgar_index"] = sscc_sgar_merged["sgar_index"].fillna(0) 

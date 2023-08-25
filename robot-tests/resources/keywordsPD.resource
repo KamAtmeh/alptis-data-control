@@ -18,9 +18,9 @@ Read Excel File
     [Return]    ${excel}
 
 Write Result CSV
-    [Arguments]    ${table}    ${file_name}
+    [Arguments]    ${table}    ${file_name}    ${output_dir}="data/output/"
     [Documentation]    Write the results from the verification into a CSV file with a specific naming format
-    toolbox.Write Csv    ${table}    ${file_name}
+    toolbox.Write Csv    ${table}    ${file_name}    ${output_dir}
 
 List CSV Files In Directory
     [Arguments]    ${directory_path}
@@ -91,7 +91,6 @@ Verify Column Data
 Verify Data Values
     [Arguments]    ${data}    ${expected_values}
     [Documentation]    Verify that the value of the variable corresponds to the expected values
-    Log    Checking this value ${expected_values}    console=${True}
     ${result}    toolbox.Check Value    ${data}    ${expected_values}
     Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values do not correspond to any of the following values ${expected_values}
     [Return]    ${result}

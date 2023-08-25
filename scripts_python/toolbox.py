@@ -407,7 +407,7 @@ def check_date(data: pd.Series) -> pd.DataFrame:
         pd.DataFrame: Datframe containing the values that do not match the required format along with the flag message.
     """
     temp_data = data.loc[data.isna() == False]
-    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_date_val) == False], "Value \'{}\' does not match the YYYYMMDD date format")
+    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_date_val) == False], "Value \'{}\' does not match the YYYYMMDD date format or YYYYMMDD_000000")
 
 
 def check_date_val(one_val: str) -> bool:

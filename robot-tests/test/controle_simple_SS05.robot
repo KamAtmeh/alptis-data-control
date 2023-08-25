@@ -3,10 +3,10 @@ Documentation    Ensemble des controles simples appliqués sur SS05
 Resource    ../resources/keywordsPD.resource
 
 *** Variables ***
-${product_name}    LSC_SS05_
+${product_name}    SS05
 
 *** Test Cases ***
-Verify Contrat LSC SS05
+Verify Contrat SS05
     Log    Retrieve input CSV files from ${directory_files_SS05}    console=${True}
     ${input_files}    List CSV Files In Directory    ${directory_files_SS05}
     Log    Iterate over files for verification    console=${True}

@@ -18,7 +18,7 @@ Read Excel File
     [Return]    ${excel}
 
 Write Result CSV
-    [Arguments]    ${table}    ${file_name}    ${output_dir}="data/output/"
+    [Arguments]    ${table}    ${file_name}    ${output_dir}=data/output/
     [Documentation]    Write the results from the verification into a CSV file with a specific naming format
     toolbox.Write Csv    ${table}    ${file_name}    ${output_dir}
 

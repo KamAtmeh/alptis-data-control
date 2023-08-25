@@ -1,14 +1,14 @@
 *** Settings ***
-Documentation    Ensemble des controles simples appliqués sur SS05
+Documentation    Ensemble des controles simples appliqués sur SM01
 Resource    ../resources/keywordsPD.resource
 
 *** Variables ***
-${product_name}    SS05
+${product_name}    SM01
 
 *** Test Cases ***
-Verify Contrat SS05
-    Log    Retrieve input CSV files from ${directory_files_SS05}    console=${True}
-    ${input_files}    List CSV Files In Directory    ${directory_files_SS05}
+Verify Contrat SM01
+    Log    Retrieve input CSV files from ${directory_files_SM01}    console=${True}
+    ${input_files}    List CSV Files In Directory    ${directory_files_SM01}
     Log    Iterate over files for verification    console=${True}
     FOR    ${file}    IN    @{input_files}
         Log    Get file name of ${file}    console=${True}
@@ -19,9 +19,9 @@ Verify Contrat SS05
         Log    Get the sheet name to read    console=${True}
         ${sheet_name}    Get Sheet Name From File    ${file_name}
         Log    Get the row from which we should start reading the excel file    console=${True}
-        ${header}    Get Row To Start Reading Excel From    ${start_row_map_SS05}    ${sheet_name}
+        ${header}    Get Row To Start Reading Excel From    ${start_row_map_SM01}    ${sheet_name}
         Log    Import specifications file    console=${True}
-        ${excel}    Read Excel File    ${map_contrat_SS05}    ${sheet_name}    header=${header}
+        ${excel}    Read Excel File    ${map_contrat_SM01}    ${sheet_name}    header=${header}
         ${file_results}    Create Empty Dataframe
 
         Log    Iterate over map to verify the specified columns    console=${True}
@@ -33,7 +33,7 @@ Verify Contrat SS05
             Log    Group column results into one big file    console=${True}
             ${file_results}    Concatenate Dataframes    ${file_results}    ${column_results}
             Log    If results table is not emtpy, save the table into a CSV file    console=${True}
-            Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}    ${directory_output_SS05}
+            Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}    ${directory_output_SM01}
         END
 
         Log    End of verification on file ${file_name}    console=${True}

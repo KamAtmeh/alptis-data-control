@@ -7,7 +7,7 @@ Resource    ../resources/keywordsCTRLCPLX.resource
 # Output #
 ${fp_result_contrat}    PM01_lien_pere.csv
 ${fp_result_gma}    PM01_gma_tmad_sor.csv
-${fp_existence_result}    PM01_existence_enregistrement_output.csv
+${fp_existence_result}    PM01_existence_enregistrement_result    .csv
 ${fp_result_sscc}    PM01_quali_period_sscc_result.csv
 ${fp_result_sgar}    PM01_quali_period_sgar_result.csv
 

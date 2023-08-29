@@ -7,7 +7,7 @@ Resource    ../resources/keywordsCTRLCPLX.resource
 # Output #
 ${fp_result_contrat}    SS01_lien_pere.csv
 ${fp_result_gma}    SS01_gma_tmad_sor.csv
-${fp_existence_result}    SS01_existence_enregistrement_output.csv
+${fp_existence_result}    SS01_existence_enregistrement_result.csv
 ${fp_result_sscc}    SS01_quali_period_sscc_result.csv
 ${fp_result_sgar}    SS01_quali_period_sgar_result.csv
 
@@ -33,8 +33,8 @@ Test Lien Fonctionnel GMA SOR
 ### Existence Enregistrement ###
 Test Existence Enregistrement Contrat Couv-Coti
     ${result_contrat_cc}    ${result_cc_contrat}    Verify Existence Enregistrement Contrat Couv-Coti    ${directory_files_SS01}
-    
-    Run Keyword If     ${result_contrat_cc.__len__()} > 0    toolbox.write_csv   ${result_contrat_cc}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_COUV_COTI_    a    ${True}
+
+    Run Keyword If    (${result_contrat_cc.__len__()} > 0) | (${result_cc_contrat.__len__()} > 0)    toolbox.write_csv   ${result_contrat_cc}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_COUV_COTI_    w    ${True}
     Run Keyword If     ${result_cc_contrat.__len__()} > 0    toolbox.write_csv   ${result_cc_contrat}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_COUV_COTI_    a    ${False}
 
     Should Be Empty    ${result_contrat_cc}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_contrat_cc}    
@@ -43,8 +43,8 @@ Test Existence Enregistrement Contrat Couv-Coti
 
 Test Existence Enregistrement Contrat Garantie
     ${result_con_gar}    ${result_gar_con}    Verify Existence Enregistrement Contrat Garantie    ${directory_files_SS01}
-
-    Run Keyword If     ${result_con_gar.__len__()} > 0    toolbox.write_csv   ${result_con_gar}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_GARANTIE_    a    ${True}
+    
+    Run Keyword If     (${result_con_gar.__len__()} > 0) | (${result_gar_con.__len__()} > 0)    toolbox.write_csv   ${result_con_gar}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_GARANTIE_    w    ${True}
     Run Keyword If     ${result_gar_con.__len__()} > 0    toolbox.write_csv   ${result_gar_con}    ${fp_existence_result}    ${directory_output_SS01}    FLAG_CONTRAT_GARANTIE_    a    ${False}
 
     Should Be Empty    ${result_con_gar}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_con_gar}

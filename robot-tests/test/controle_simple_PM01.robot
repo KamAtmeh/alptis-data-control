@@ -5,6 +5,7 @@ Resource    ../resources/keywordsPD.resource
 *** Variables ***
 ${product_name}    PM01
 
+
 *** Test Cases ***
 Verify Contrat PM01
     Log    Retrieve input CSV files from ${directory_files_PM01}    console=${True}

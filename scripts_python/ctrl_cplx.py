@@ -299,8 +299,8 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
 
 
 if __name__ == "__main__":
-    sscc_fp = "data/input/LSC-SS01/COUV_COTI/F_SAS_STRUCT_COUV_COTI.csv"
-    sgar_fp = "data/input/LSC-SS01/GARANTIE/F_SAS_GARANTIE_BM.csv"
+    sscc_fp = "data/input/SS01/ALL/F_SAS_STRUCT_COUV_COTI.csv"
+    sgar_fp = "data/input/SS01/ALL/F_SAS_GARANTIE_BM.csv"
 
     sscc_data = pd.read_csv(sscc_fp, sep=";", header=0)
     sgar_data = pd.read_csv(sgar_fp, sep=";", header=0)

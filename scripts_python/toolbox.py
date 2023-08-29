@@ -26,7 +26,7 @@ import os
 from io import StringIO
 # ======================== #
 
-def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/output/", flag_name: str = "FLAG_CONTRAT_", mode: str = "w", header: bool = True):
+def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/output/", flag_name: str = "FLAG_STRUCT_", mode: str = "w", header: bool = True):
     """Write a table into a csv file
 
     Args:

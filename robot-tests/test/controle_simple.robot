@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Ensemble des controles simples appliqués sur PM01un produit
+Documentation    Ensemble des controles simples appliqués sur un produit
 Resource    ../resources/keywordsPD.resource
 
 *** Variables ***

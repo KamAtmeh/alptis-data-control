@@ -22,7 +22,7 @@ Library    ../../scripts_python/toolbox.py
 ...    start_row_map={"F_SAS_CONTRAT": 6, "F_SAS_STRUCT_COUV_COTI": 6, "F_SAS_GARANTIE": 5, "F_SAS_RISQUE": 5, "F_SAS_L_RISQUE_OPT_MODEL": 3, "F_SAS_INTERVENANT_POL": 3}
 ...    directory_output=data/output/SM01_SM02_SM03/
 
-&{SS01_dict}=    map_contrat=data/input/LSC-SS01/MAP_CONTRAT LSC_SS01.xlsx
+&{SS01_dict}=    map_contrat=data/input/SS01/MAP_CONTRAT LSC_SS01.xlsx
 ...    directory_files=data/input/SS01/ALL
 ...    start_row_map= {"F_SAS_CONTRAT": 6, "F_SAS_STRUCT_COUV_COTI": 6, "F_SAS_GARANTIE": 5, "F_SAS_RISQUE": 5, "F_SAS_L_RISQUE_OPT_MODEL": 3, "F_SAS_INTERVENANT_POL": 3}
 ...    directory_output= data/output/SS01/

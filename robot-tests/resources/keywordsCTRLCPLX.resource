@@ -11,7 +11,7 @@ Library    pandas
 Verify Coherence Lien Pere
     [Arguments]    ${input_dir}
     [Documentation]    Controle la coherence du lien pere pour un fichier de contrat passe en entre
-    ${this_fp_contrat}    Catenate    SEPARATOR=/    ..    ..    ${input_dir}    ${fp_contrat}
+    ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
     ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification de le fichier F_SAS_CONTRAT_BM la cohérence entre lien père
     ${result}    ctrl_cplx.coherence_lien_pere    ${contrat}

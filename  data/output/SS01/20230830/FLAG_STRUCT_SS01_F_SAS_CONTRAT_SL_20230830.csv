@@ -1,5 +1,0 @@
-file_name;column;value;flag_details
-F_SAS_CONTRAT_SL.csv;SCON_PAS_LIBELLE;Offre LSC;Value Offre LSC does not correspond to any of the following values: Ligne Santé Collective
-F_SAS_CONTRAT_SL.csv;SCON_POL_LIB12;NC;Value NC does not correspond to any of the following values: Cadres, Non_Cadres, Ensemble_Personnel, Maintien_Gratuit
-F_SAS_CONTRAT_SL.csv;SCON_POL_LIB12;EP;Value EP does not correspond to any of the following values: Cadres, Non_Cadres, Ensemble_Personnel, Maintien_Gratuit
-F_SAS_CONTRAT_SL.csv;SCON_POL_LIB12;CA;Value CA does not correspond to any of the following values: Cadres, Non_Cadres, Ensemble_Personnel, Maintien_Gratuit

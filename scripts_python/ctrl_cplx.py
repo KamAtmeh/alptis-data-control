@@ -81,6 +81,10 @@ def lf_all_gma_tmad_sor(data: pd.DataFrame, col_list: list) -> pd.DataFrame:
     gma_1tmad_sce_result = lf_gma_tmad_controle(ref_gma_tmad_sor_data.loc[ref_gma_tmad_sor_data[col_list[1]].astype(str).isin(pd.Series(["ASS_SANTE_SAL_CON_ENF"]))],
                                                 np.array(["MA_SANTE_SAL_CON_ENF"]))
     
+    # Alerte sur le lien "SAL_CON_CJT"
+    gma_1tmad_sce_result = lf_gma_tmad_controle(ref_gma_tmad_sor_data.loc[ref_gma_tmad_sor_data[col_list[1]].astype(str).isin(pd.Series(["ASS_SANTE_SAL_ENF_CJT"]))],
+                                                np.array(["MA_SANTE_SAL_ENF_CJT"]))
+    
     # Alerte sur le lien "ISOFAM"
     gma_2tmad_result = lf_gma_tmad_controle(ref_gma_tmad_sor_data.loc[ref_gma_tmad_sor_data[col_list[1]].astype(str).isin(pd.Series(["ASS_SANTE_ISOFAM"]))],
                                             np.array(["MA_SANTE_ISOFAM_FAMILLE", "MA_SANTE_ISOFAM_ISOLE"]))

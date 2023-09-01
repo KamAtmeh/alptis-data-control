@@ -1,5 +1,0 @@
-file_name;column;value;flag_details
-F_SAS_STRUCT_COUV_COTI.csv;SSCC_DATE_MVT_MODELE;null_000000;Value 'null_000000' does not match the YYYYMMDD date format or YYYYMMDD_000000
-F_SAS_STRUCT_COUV_COTI.csv;SSCC_SOR_DATEDEBUT;null_000;Value 'null_000' does not match the YYYYMMDD date format or YYYYMMDD_000000
-F_SAS_STRUCT_COUV_COTI.csv;SSCC_CREER_AY_C;;Value  does not correspond to any of the following values: 0, 1
-F_SAS_STRUCT_COUV_COTI.csv;SSCC_CREER_AY_E;;Value  does not correspond to any of the following values: 0, 1

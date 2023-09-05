@@ -55,11 +55,34 @@ def split_heavy_file(input_dir: str, th_size_MO:int=500):
                     data_to_split.loc[data_to_split[colname].isin(pol_refecho.iloc[indexes[i]:])].to_csv(new_fn, sep=";", index=False)
                 else:
                     data_to_split.loc[data_to_split[colname].isin(pol_refecho.iloc[indexes[i]:indexes[i+1]])].to_csv(new_fn, sep=";", index=False)
-            del(data_to_split, pol_refecho,indexes)
+            del(data_to_split, pol_refecho, indexes)
             gc.collect()
             os.remove(fp)
             logger.console("\tRemoving {} file".format(fp))
-      
+
+def read_splitted_file(input_fp: str, columns:list):
+    data = []
+    print(input_fp)
+    if os.path.exists(input_fp):
+        data = pd.read_csv(input_fp, sep=";", header=0, low_memory=False).loc[:,columns].copy(deep=True)
+        gc.collect()
+        return data
+    else:
+        real_filename = input_fp.split("/")[-1]
+        input_dir = "/".join(input_fp.split("/")[:-1])
+        filename_re = re.compile(real_filename.split(".")[0] + r"_\d*\.csv")
+        print(filename_re)
+        file_list = ["/".join([input_dir, one_f]) for one_f in os.listdir(input_dir) if filename_re.match(one_f)]
+        print(file_list)
+        for one_fp in file_list:
+            data.append(pd.read_csv(one_fp, sep=";", header=0, low_memory=False).loc[:,columns].copy(deep=True))
+        result = pd.concat(data, ignore_index=True, axis=0)
+        del(data)
+        gc.collect()
+        return result
+    
+def launch_gc() -> None:
+    gc.collect()
 
 def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/output/", flag_name: str = "FLAG_STRUCT_", mode: str = "w", header: bool = True):
     """Write a table into a csv file
@@ -84,6 +107,8 @@ def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/ou
         print(f"Folder '{outputdir}' already exists.")
     csv_file_path = outputdir + flag_name + filename.replace(".csv", "") + "_" + current_date + ".csv"
     df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8", mode=mode, header=header)
+    del(df)
+    gc.collect()
 
 
 def read_excel_without_empty_rows(filepath, sheet_name, header):
@@ -192,6 +217,8 @@ def get_final_table_result(file: str, column: str, result: pd.DataFrame) -> pd.D
     })
     # Combine both dataframes while reseting the index of the original results table so that the concat function does not create combinations between rows
     final_result = pd.concat([final_result,result.reset_index()], axis=1)
+    del(result)
+    gc.collect()
     # Remove the index column
     final_result = final_result.drop("index", axis=1)
     # Sort values by column name and number of line

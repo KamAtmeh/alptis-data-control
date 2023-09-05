@@ -4,7 +4,7 @@ Documentation    Un test pour controler la présence d'une valeur dans SCON_IDEN
 Resource    ../resources/keywordsCTRLCPLX.resource
 
 *** Variables ***
-${PROD_NAME}    PM01
+${PROD_NAME}    SS01
 ${prod_var}    ${global_dict}[${PROD_NAME}]
 # Output #
 ${fp_result_contrat}    ${PROD_NAME}_lien_pere.csv

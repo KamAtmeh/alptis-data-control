@@ -20,6 +20,7 @@
 # ------------------------ #
 import pandas as pd
 import numpy as np
+import gc 
 from io import StringIO
 # ======================== #
 
@@ -136,6 +137,8 @@ def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
     other_data = data.loc[data["SCON_IDENT_LIEN_PERE"].isna() == False]
     other_result = other_data.loc[other_data["SCON_REFECHO_PERE"].isna() == True,
                                 ["SCON_POL_REFECHO", "SCON_REFECHO_PERE", "SCON_IDENT_LIEN_PERE"]]
+    del(master_data, other_data)
+    gc.collect()
 
     return pd.concat([master_result, other_result]) 
     
@@ -203,6 +206,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
 
     sscc_data = sscc_data.assign(SSCC_SOR_DATEFIN = sscc_group.shift(-1))
     del(sscc_group)
+    gc.collect()
 
     ## Add ayant droit
     print("Creating AY_QUALITE for SSCC...")
@@ -249,6 +253,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
             })\
         .drop_duplicates()
     del(sgar_data)
+    gc.collect()
 
     sscc_slct = sscc_data\
         .loc[:, ["SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE",
@@ -266,6 +271,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
         })\
         .drop_duplicates()
     del(sscc_data)
+    gc.collect()
 
     ## Add index in column 
     sscc_slct["sscc_index"] = sscc_slct.index + 1

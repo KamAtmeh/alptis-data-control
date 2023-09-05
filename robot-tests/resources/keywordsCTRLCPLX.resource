@@ -12,7 +12,7 @@ Verify Coherence Lien Pere
     [Arguments]    ${input_dir}
     [Documentation]    Controle la coherence du lien pere pour un fichier de contrat passe en entre
     ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
-    ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
+    ${contrat}    toolbox.Read Splitted File    ${this_fp_contrat}    ["SCON_POL_REFECHO", "SCON_REFECHO_PERE", "SCON_IDENT_LIEN_PERE"]
     Log To Console    Vérification de le fichier F_SAS_CONTRAT_BM la cohérence entre lien père
     ${result}    ctrl_cplx.coherence_lien_pere    ${contrat}
     [Return]    ${result}
@@ -22,7 +22,8 @@ Verify Lien Fonctionnel GMA TMAD
     [Arguments]    ${input_dir}
     [Documentation]    Controle le lien fonctionnel entre GMA TMAD sur le fichier COUV_COTI passe en entre
     ${this_fp_couv_coti}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_couv_coti}
-    ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${this_fp_couv_coti}    sep=;    header=${0}    low_memory=False
+    ${couv_coti}    toolbox.Read Splitted File    ${this_fp_couv_coti}    ['SSCC_POL_REFECHO', 'SSCC_GMA_CODE', 'SSCC_TMAD_CODE']
+    # ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${this_fp_couv_coti}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification du lien fonctionnel GMA code - TMAD code sur COUV_COTI
     ${result_data}    ctrl_cplx.lf_all_gma_tmad_sor    ${couv_coti}    ['SSCC_POL_REFECHO', 'SSCC_GMA_CODE', 'SSCC_TMAD_CODE']
     [Return]    ${result_data}
@@ -32,7 +33,8 @@ Verify Lien Fonctionnel GMA SOR
     [Arguments]    ${input_dir}
     [Documentation]    Controle le lien fonctionnel entre GMA TMAD sur le fichier GARANTIE passe en entre
     ${this_fp_garantie}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_garantie}
-    ${garantie}    pandas.Read Csv    filepath_or_buffer=${this_fp_garantie}    sep=;    header=${0}    low_memory=False
+    ${garantie}    toolbox.Read Splitted File    ${this_fp_garantie}    ['SGAR_POL_REFECHO', 'SGAR_GMA_CODE', 'SGAR_SOR_IDENTIFIANT']
+    # ${garantie}    pandas.Read Csv    filepath_or_buffer=${this_fp_garantie}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification du lien fonctionnel GMA code - SOR identifiant sur GARANTIE
     ${result_data}    ctrl_cplx.lf_all_gma_tmad_sor    ${garantie}    ['SGAR_POL_REFECHO', 'SGAR_GMA_CODE', 'SGAR_SOR_IDENTIFIANT']
     [Return]    ${result_data}
@@ -43,8 +45,12 @@ Verify Existence Enregistrement Contrat Couv-Coti
     ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
     ${this_fp_couv_coti}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_couv_coti}
 
-    ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
-    ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${this_fp_couv_coti}    sep=;    header=${0}    low_memory=False
+    ${contrat}    toolbox.Read Splitted File    ${this_fp_contrat}    ["SCON_POL_REFECHO"]
+    ${couv_coti}    toolbox.Read Splitted File    ${this_fp_couv_coti}    ['SSCC_POL_REFECHO']
+    
+    # ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
+    # ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${this_fp_couv_coti}    sep=;    header=${0}    low_memory=False
+    
     Log To Console    Vérification de contrat - couv_coti ${\n}
     ${result_contrat_cc}    ctrl_cplx.pol_refecho_comparison    ${contrat.get('SCON_POL_REFECHO')}    ${couv_coti.get('SSCC_POL_REFECHO')}
     Log To Console    Vérification de couv_coti - contrat
@@ -57,8 +63,12 @@ Verify Existence Enregistrement Contrat Garantie
     ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
     ${this_fp_garantie}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_garantie}
 
-    ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
-    ${garantie}    pandas.Read Csv    filepath_or_buffer=${this_fp_garantie}    sep=;    header=${0}    low_memory=False
+    ${contrat}    toolbox.Read Splitted File    ${this_fp_contrat}    ["SCON_POL_REFECHO"]
+    ${garantie}    toolbox.Read Splitted File    ${this_fp_garantie}    ['SGAR_POL_REFECHO']
+
+    # ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
+    # ${garantie}    pandas.Read Csv    filepath_or_buffer=${this_fp_garantie}    sep=;    header=${0}    low_memory=False
+    
     Log To Console    Vérification de contrat - garantie${\n}
     ${result_con_gar}    ctrl_cplx.pol_refecho_comparison    ${contrat.get('SCON_POL_REFECHO')}    ${garantie.get('SGAR_POL_REFECHO')}
   
@@ -72,8 +82,12 @@ Verify Existence Enregistrement Risque Contrat
     ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
     ${this_fp_risque}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_risque}
 
-    ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
-    ${risque}    pandas.Read Csv    filepath_or_buffer=${this_fp_risque}    sep=;    header=${0}    low_memory=False
+    ${contrat}    toolbox.Read Splitted File    ${this_fp_contrat}    ["SCON_POL_REFECHO"]
+    ${risque}    toolbox.Read Splitted File    ${this_fp_risque}    ["SRIS_POL_REFECHO"]
+
+    # ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
+    # ${risque}    pandas.Read Csv    filepath_or_buffer=${this_fp_risque}    sep=;    header=${0}    low_memory=False
+
     Log To Console    Vérification de risque - contrat
     ${result}    ctrl_cplx.pol_refecho_comparison    ${risque.get('SRIS_POL_REFECHO')}    ${contrat.get('SCON_POL_REFECHO')}
     [Return]    ${result}
@@ -83,8 +97,12 @@ Verify Existence Enregistrement RisqueSL Contrat
     ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
     ${this_fp_risque_sl}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_risque_sl}
 
-    ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
-    ${risque}    pandas.Read Csv    filepath_or_buffer=${this_fp_risque_sl}    sep=;    header=${0}    low_memory=False
+    ${contrat}    toolbox.Read Splitted File    ${this_fp_contrat}    ["SCON_POL_REFECHO"]
+    ${risque}    toolbox.Read Splitted File    ${this_fp_risque_sl}    ["SRIS_POL_REFECHO_RISQUE_PERE"]
+
+    # ${contrat}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat}    sep=;    header=${0}    low_memory=False
+    # ${risque}    pandas.Read Csv    filepath_or_buffer=${this_fp_risque_sl}    sep=;    header=${0}    low_memory=False
+    
     Log To Console    Vérification de risque SL - contrat
     ${result}    ctrl_cplx.pol_refecho_comparison    ${risque.get('SRIS_POL_REFECHO_RISQUE_PERE')}    ${contrat.get('SCON_POL_REFECHO')}
     [Return]    ${result}
@@ -95,8 +113,11 @@ Verify Existence Enregistrement ContratSL Contrat
     ${this_fp_contrat_bm}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
     ${this_fp_contrat_sl}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat_sl}
 
-    ${contratBM}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat_bm}    sep=;    header=${0}    low_memory=False
-    ${contratSL}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat_sl}    sep=;    header=${0}    low_memory=False
+    ${contratBM}    toolbox.Read Splitted File    ${this_fp_contrat_bm}    ["SCON_POL_REFECHO"]
+    ${contratSL}    toolbox.Read Splitted File    ${this_fp_contrat_sl}    ["SCON_FILS_MAIT_POL_REFECHO"]
+
+    # ${contratBM}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat_bm}    sep=;    header=${0}    low_memory=False
+    # ${contratSL}    pandas.Read Csv    filepath_or_buffer=${this_fp_contrat_sl}    sep=;    header=${0}    low_memory=False
     Log To Console    Vérification de contrat SL - contrat BM
     ${result}    ctrl_cplx.pol_refecho_comparison    ${contratSL.get('SCON_FILS_MAIT_POL_REFECHO')}    ${contratBM.get('SCON_POL_REFECHO')}
     [Return]    ${result}
@@ -107,8 +128,11 @@ Verify Controle Couv-Coti et Garantie
     ${this_fp_couv_coti}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_couv_coti}
     ${this_fp_garantie}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_garantie}
 
-    ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${this_fp_couv_coti}    sep=;    header=${0}    low_memory=False
-    ${garantie}    pandas.Read Csv    filepath_or_buffer=${this_fp_garantie}    sep=;    header=${0}    low_memory=False
+    ${garantie}    toolbox.Read Splitted File    ${this_fp_garantie}    ["SGAR_POL_REFECHO", "SGAR_GMA_CODE", "SGAR_SOR_IDENTIFIANT", "SGAR_SOR_DATEDEBUT", "SGAR_SOR_MODELE_FORM_LIB", "SGAR_SOR_DATEFIN", "SGAR_SAR_AY_QUALITE", "SGAR_SAR_RANG_REMB"]
+    ${couv_coti}    toolbox.Read Splitted File    ${this_fp_couv_coti}    ["SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE", "SSCC_SOR_MODELE_FORMULE_LIB", "SSCC_CREER_AY_C", "SSCC_CREER_AY_E", "SSCC_NIEME_ENF_GRATUIT", "SSCC_SOR_DATEDEBUT"]
+
+    # ${couv_coti}    pandas.Read Csv    filepath_or_buffer=${this_fp_couv_coti}    sep=;    header=${0}    low_memory=False
+    # ${garantie}    pandas.Read Csv    filepath_or_buffer=${this_fp_garantie}    sep=;    header=${0}    low_memory=False
     
     Log To Console    Verification des fichiers...${\n}
     ${result_sscc}    ${result_sgar}    Verify Couv Coti Contrat    ${couv_coti}    ${garantie}

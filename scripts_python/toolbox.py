@@ -60,7 +60,16 @@ def split_heavy_file(input_dir: str, th_size_MO:int=500):
             os.remove(fp)
             logger.console("\tRemoving {} file".format(fp))
 
-def read_splitted_file(input_fp: str, columns:list):
+def read_splitted_file(input_fp: str, columns:list) -> pd.DataFrame:
+    """Read splitted data with a set of columns
+
+    Args:
+        input_fp (str): original filepath to the file
+        columns (list): list of columns name
+
+    Returns:
+        pd.DataFrame: dataframe with chosen columns
+    """
     data = []
     print(input_fp)
     if os.path.exists(input_fp):

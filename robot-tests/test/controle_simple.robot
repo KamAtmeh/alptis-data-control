@@ -10,8 +10,6 @@ ${PROD_NAME}    SS01
 Verify Product Structure
     Log    Controling files of ${PROD_NAME}
     &{prod_var}    Set Variable    ${global_dict}[${PROD_NAME}]
-    Log    Split Heavy files \(if there's any\) into smaller files    console=${True}
-    Split Heavy File    ${prod_var}[directory_files]
     Log    Retrieve input CSV files from ${prod_var}[directory_files]    console=${True}
     ${input_files}    List CSV Files In Directory    ${prod_var}[directory_files]
     Log    Iterate over files for verification    console=${True}
@@ -42,7 +40,10 @@ Verify Product Structure
             # Log    If results table is not emtpy, save the table into a CSV file    console=${True}
             # Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}    ${directory_output_PM01}
         END
+
         Log    If results table is not emtpy, save the table into a CSV file    console=${True}
+        ${display_filename}    toolbox.Output Csv Name    ${output_file_name}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/
+        Run Keyword And Continue On Failure    Should Be Empty    ${file_results}    Les alertes sont spécifiées dans le fichier ${display_filename}
         Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}    ${prod_var}[directory_output]
         ${file_results}    Set Variable    ${None}
         ${csv_data}    Set Variable    ${None}

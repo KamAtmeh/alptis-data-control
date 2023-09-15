@@ -3,7 +3,7 @@
 # ======================== #
 ####    Information     ####
 # ------------------------ #
-# Version   : V0
+# Version   : V1
 # Author    : Kamal Atmeh
 # Date      : 25/07/2023
 
@@ -15,6 +15,10 @@
 ####    A faire         ####
 # ------------------------ #
 
+
+####    Historique      ####
+# ------------------------ #
+# V1: Mise en production et annulation de la vérification de int dans float
 
 ####    Packages        ####
 # ------------------------ #
@@ -52,9 +56,9 @@ def split_heavy_file(input_dir: str, th_size_MO:int=500):
                 new_fn = input_dir + "/" + file[:-4] + "_{}.csv".format(i+1)
                 logger.console("\tCreating {}...".format(new_fn))
                 if i == len(indexes) -1:
-                    data_to_split.loc[data_to_split[colname].isin(pol_refecho.iloc[indexes[i]:])].to_csv(new_fn, sep=";", index=False)
+                    data_to_split.loc[data_to_split[colname].isin(pol_refecho.iloc[indexes[i]:])].astype(object).to_csv(new_fn, sep=";", index=False)
                 else:
-                    data_to_split.loc[data_to_split[colname].isin(pol_refecho.iloc[indexes[i]:indexes[i+1]])].to_csv(new_fn, sep=";", index=False)
+                    data_to_split.loc[data_to_split[colname].isin(pol_refecho.iloc[indexes[i]:indexes[i+1]])].astype(object).to_csv(new_fn, sep=";", index=False)
             del(data_to_split, pol_refecho, indexes)
             gc.collect()
             os.remove(fp)
@@ -92,6 +96,23 @@ def read_splitted_file(input_fp: str, columns:list) -> pd.DataFrame:
     
 def launch_gc() -> None:
     gc.collect()
+
+def output_csv_name(filename:str, output_dir:str = "data/output/", flag_name: str = "FLAG_STRUCT_"):
+    """Return the output filename
+
+    Args:
+        filename (str): filename
+        output_dir (str, optional): Directory where data will be stored. Defaults to "data/output/".
+        flag_name (str, optional): Flag added before filename. Defaults to "FLAG_STRUCT_".
+
+    Returns:
+        str: path to output file
+    """
+    current_date = datetime.datetime.now().strftime("%Y%m%d")
+    outputdir = output_dir + current_date + "/"
+    csv_file_path = outputdir + flag_name + filename.replace(".csv", "") + "_" + current_date + ".csv"
+    return csv_file_path
+    
 
 def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/output/", flag_name: str = "FLAG_STRUCT_", mode: str = "w", header: bool = True):
     """Write a table into a csv file
@@ -337,6 +358,8 @@ def check_length_val(one_val: str, expected_length: int) -> bool:
     Returns:
         bool: True if value follows the expected length. False if else.
     """
+    if (check_float_val(one_val)) and (not check_int_val(one_val)):
+        return len(str(float(one_val))) <= expected_length
     return len(one_val) <= expected_length
 
 
@@ -465,7 +488,7 @@ def check_float_val(one_val: str) -> bool:
         float(one_val)
     except:
         return False
-    return not check_int_val(one_val)
+    return True
 
 
 def check_date(data: pd.Series) -> pd.DataFrame:

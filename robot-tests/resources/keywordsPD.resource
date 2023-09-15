@@ -92,7 +92,7 @@ Verify Data Values
     [Arguments]    ${data}    ${expected_values}
     [Documentation]    Verify that the value of the variable corresponds to the expected values
     ${result}    toolbox.Check Value    ${data}    ${expected_values}
-    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values do not correspond to any of the following values ${expected_values}
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${data.name}: Some values do not correspond to any of the following values ${expected_values}
     [Return]    ${result}
 
 # Verify taux et montant
@@ -130,7 +130,7 @@ Verify Date
     [Arguments]    ${data}
     [Documentation]    Verify that the variable follows the YYYYMMDD date format
     ${result}    toolbox.Check Date    ${data}
-    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values do not match the YYYYMMDD date format
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${data.name}: Some values do not match the YYYYMMDD date format
     [Return]    ${result}
 
 Verify Number
@@ -163,28 +163,28 @@ Verify Integer
     [Arguments]    ${data}
     [Documentation]    Verify that variable is an integer
     ${result}    toolbox.Check Int    ${data}
-    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values are not integers
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${data.name}: Some values are not integers
     [Return]    ${result}
 
 Verify Float
     [Arguments]    ${data}
     [Documentation]    Verify that variable is a float
     ${result}    toolbox.Check Float    ${data}
-    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some values are not decimal numbers
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${data.name}: Some values are not decimal numbers
     [Return]    ${result}
 
 Verify Float Format
     [Arguments]    ${data}    ${format}
     [Documentation]    Verify that the decimal number follows the determined formet (A,B)
     ${result}    toolbox.Check Decimal    ${data}    ${format}
-    Run Keyword And Continue On Failure    Should Be Empty    ${result}    Some float numbers do not follow the required format '(${format})'
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${data.name}: Some float numbers do not follow the required format '(${format})'
     [Return]    ${result}
 
 Verify Length
     [Arguments]    ${data}    ${expected_length}    ${err_msg_variable_type}
     [Documentation]    Verify character length of item
     ${result}    toolbox.Check Length    ${data}    ${expected_length}    ${err_msg_variable_type}
-    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${err_msg_variable_type} length should be less than or equal to ${expected_length}
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${data.name}: ${err_msg_variable_type} length should be less than or equal to ${expected_length}
     [Return]    ${result}
 
 Get Column Index

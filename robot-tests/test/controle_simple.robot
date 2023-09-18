@@ -42,7 +42,7 @@ Verify Product Structure
         END
 
         Log    If results table is not emtpy, save the table into a CSV file    console=${True}
-        ${display_filename}    toolbox.Output Csv Name    ${output_file_name}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/
+        ${display_filename}    toolbox.Output Csv Name    ${output_file_name}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/
         Run Keyword And Continue On Failure    Should Be Empty    ${file_results}    Les alertes sont spécifiées dans le fichier ${display_filename}
         Run Keyword If    ${file_results.__len__()} > 0    Write Result CSV    ${file_results}    ${output_file_name}    ${prod_var}[directory_output]
         ${file_results}    Set Variable    ${None}

@@ -18,7 +18,7 @@ ${fp_result_sgar}    ${PROD_NAME}_quali_period_sgar_result.csv
 Test Coherence Lien Pere
     ${result}    Verify Coherence Lien Pere    ${prod_var}[directory_files]
     Run Keyword If     ${result.__len__()} > 0    toolbox.write_csv   ${result}    ${fp_result_contrat}    ${prod_var}[directory_output]    FLAG_COHERENCE_CONTRAT_    w    ${True}
-    ${display_filename}    toolbox.Output Csv Name    ${fp_result_contrat}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_COHERENCE_CONTRAT_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_result_contrat}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_CONTRAT_
     Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Les valeurs entre REFECHO_PERE et IDENT_LIEN_PERE ne sont pas cohérent ${result}
 
 
@@ -26,20 +26,20 @@ Test Coherence Lien Pere
 Test Lien Fonctionnel GMA TMAD
     ${result_data}    Verify Lien Fonctionnel GMA TMAD    ${prod_var}[directory_files]
     Run Keyword If     ${result_data.__len__()} > 0    toolbox.write_csv    ${result_data}    ${fp_result_gma}    ${prod_var}[directory_output]    FLAG_COHERENCE_SSCC_    w    ${True}
-    ${display_filename}    toolbox.Output Csv Name    ${fp_result_gma}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_COHERENCE_SSCC_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_result_gma}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_SSCC_
     Should Be Empty    ${result_data}    Résultat ici: ${display_filename}${\n}Les valeurs de TMAD CODE ne correspondent pas à leurs GMA CODE ${result_data}
 
 Test Lien Fonctionnel GMA SOR
     ${result_data}    Verify Lien Fonctionnel GMA SOR    ${prod_var}[directory_files]
     Run Keyword If     ${result_data.__len__()} > 0    toolbox.write_csv    ${result_data}    ${fp_result_gma}    ${prod_var}[directory_output]    FLAG_COHERENCE_SGAR_    w    ${True}
-    ${display_filename}    toolbox.Output Csv Name    ${fp_result_gma}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_COHERENCE_SGAR_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_result_gma}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_SGAR_
     Should Be Empty    ${result_data}    Résultat ici: ${display_filename}${\n}Les valeurs de SOR IDENTIFIANT ne correspondent pas à leurs GMA CODE ${result_data}
 
 ### Existence Enregistrement ###
 Test Existence Enregistrement Contrat Couv-Coti
     ${result_contrat_cc}    ${result_cc_contrat}    Verify Existence Enregistrement Contrat Couv-Coti    ${prod_var}[directory_files]
     
-    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_CONTRAT_COUV_COTI_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_CONTRAT_COUV_COTI_
     Run Keyword If     ${result_contrat_cc.__len__()} > 0    toolbox.write_csv   ${result_contrat_cc}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_CONTRAT_COUV_COTI_    w    ${True}
     Run Keyword If     ${result_cc_contrat.__len__()} > 0    toolbox.write_csv   ${result_cc_contrat}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_CONTRAT_COUV_COTI_    a    ${False}
 
@@ -50,7 +50,7 @@ Test Existence Enregistrement Contrat Couv-Coti
 Test Existence Enregistrement Contrat Garantie
     ${result_con_gar}    ${result_gar_con}    Verify Existence Enregistrement Contrat Garantie    ${prod_var}[directory_files]
 
-    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_CONTRAT_GARANTIE_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_CONTRAT_GARANTIE_
     Run Keyword If     ${result_con_gar.__len__()} > 0    toolbox.write_csv   ${result_con_gar}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_CONTRAT_GARANTIE_    w    ${True}
     Run Keyword If     ${result_gar_con.__len__()} > 0    toolbox.write_csv   ${result_gar_con}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_CONTRAT_GARANTIE_    a    ${False}
 
@@ -61,7 +61,7 @@ Test Existence Enregistrement Contrat Garantie
 Test Existence Enregistrement Risque Contrat
     ${result}    Verify Existence Enregistrement Risque Contrat    ${prod_var}[directory_files]
     
-    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_CONTRAT_RISQUE_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_CONTRAT_RISQUE_
     Run Keyword If     ${result.__len__()} > 0    toolbox.write_csv   ${result}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_CONTRAT_RISQUE_    w    ${True}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}${\n} Résultat ici: ${display_filename}
     
@@ -69,14 +69,14 @@ Test Existence Enregistrement Risque Contrat
 Test Existence Enregistrement RisqueSL Contrat
     ${result}    Verify Existence Enregistrement RisqueSL Contrat    ${prod_var}[directory_files]
 
-    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_CONTRAT_RISQUE_SL_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_CONTRAT_RISQUE_SL_
     Run Keyword If     ${result.__len__()} > 0    toolbox.write_csv   ${result}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_CONTRAT_RISQUE_SL_    w    ${True}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}${\n} Résultat ici: ${display_filename}
 
 Test Existence Enregistrement ContratSL Contrat
     ${result}    Verify Existence Enregistrement ContratSL Contrat    ${prod_var}[directory_files]
 
-    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_CONTRAT_CONTRAT_SL_
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_CONTRAT_CONTRAT_SL_
     Run Keyword If     ${result.__len__()} > 0    toolbox.write_csv   ${result}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_CONTRAT_CONTRAT_SL_    w    ${False}
     Should Be Empty    ${result}    Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche. ${\n} ${result}${\n} Résultat ici: ${display_filename}
 
@@ -84,8 +84,8 @@ Test Existence Enregistrement ContratSL Contrat
 Test Controle Couv-Coti et Garantie
     ${result_sscc}    ${result_sgar}    Verify Controle Couv-Coti et Garantie    ${prod_var}[directory_files]
     
-    ${display_filename_sgar}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_LINE_NOT_IN_SGAR_
-    ${display_filename_sgcc}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_LINE_NOT_IN_SGCC_
+    ${display_filename_sgar}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_LINE_NOT_IN_SGAR_
+    ${display_filename_sgcc}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_LINE_NOT_IN_SGCC_
 
     Run Keyword If     ${result_sscc.__len__()} > 0    toolbox.write_csv    ${result_sscc}    ${fp_result_sscc}    ${prod_var}[directory_output]    FLAG_LINE_NOT_IN_SGAR_
     Run Keyword If     ${result_sgar.__len__()} > 0    toolbox.write_csv    ${result_sgar}    ${fp_result_sgar}    ${prod_var}[directory_output]    FLAG_LINE_NOT_IN_SSCC_
@@ -97,7 +97,7 @@ Test Controle Risque
     FOR    ${file}    IN    @{csv_files}
         ${result}    Verify Fichier Risque   ${file}
         Log To Console    ${file}    console=${True}
-        ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
+        ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
         Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
         Run Keyword And Continue On Failure    Should Be Empty    ${result}    Les alertes sont spécifiées dans le fichier ${display_filename}
     END

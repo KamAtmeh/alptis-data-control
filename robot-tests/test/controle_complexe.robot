@@ -91,3 +91,15 @@ Test Controle Couv-Coti et Garantie
     Run Keyword If     ${result_sgar.__len__()} > 0    toolbox.write_csv    ${result_sgar}    ${fp_result_sgar}    ${prod_var}[directory_output]    FLAG_LINE_NOT_IN_SSCC_
     Should Be Empty    ${result_sscc}    Résultat ici: ${display_filename_sgar}${\n}Des valeurs de SSCC ne se retrouvent pas dans SGAR veuillez consulter les fichiers de LOG
     Should Be Empty    ${result_sgar}    Résultat ici: ${display_filename_sgcc}${\n}Des valeurs de SGAR ne se retrouvent pas dans SSCC veuillez consulter les fichiers de LOG
+
+Test Controle Risque
+    ${csv_files}    OperatingSystem.List Files In Directory    ${prod_var}[directory_files]    pattern=F_SAS_RISQUE*.csv    absolute=${True}
+    FOR    ${file}    IN    @{csv_files}
+        ${result}    Verify Fichier Risque   ${file}
+        Log To Console    ${file}    console=${True}
+        ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
+        Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
+        Run Keyword And Continue On Failure    Should Be Empty    ${result}    Les alertes sont spécifiées dans le fichier ${display_filename}
+    END
+
+

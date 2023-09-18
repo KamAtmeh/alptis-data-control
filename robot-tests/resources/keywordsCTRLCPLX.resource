@@ -137,3 +137,16 @@ Verify Controle Couv-Coti et Garantie
     Log To Console    Verification des fichiers...${\n}
     ${result_sscc}    ${result_sgar}    Verify Couv Coti Contrat    ${couv_coti}    ${garantie}
     [Return]    ${result_sscc}    ${result_sgar}
+
+
+Verify Fichier Risque
+    [Arguments]    ${input_file}
+    Log To Console    Vérification du fichier ${input_file}    console=${True}
+    ${risque_data}    toolbox.Read Splitted File    ${input_file}    ["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SOR_IDENTIFIANT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SAR_AY_QUALITE"]
+    ${result}    ctrl_cplx.controle_risque_file    ${risque_data}
+    [Return]    ${result}
+
+
+
+
+

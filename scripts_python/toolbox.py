@@ -108,6 +108,10 @@ def output_csv_name(filename:str, output_dir:str = "data/output/", flag_name: st
     Returns:
         str: path to output file
     """
+    if "/" in filename:
+        filename = filename.split("/")[-1]
+    if "\\" in filename:
+        filename = filename.split("\\")[-1]
     current_date = datetime.datetime.now().strftime("%Y%m%d")
     outputdir = output_dir + current_date + "/"
     csv_file_path = outputdir + flag_name + filename.replace(".csv", "") + "_" + current_date + ".csv"
@@ -125,6 +129,11 @@ def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/ou
         mode (str, optional): the mode to write the CSV file. Defaults to "w".
         header (bool, optional): option to take header into consideration or not. Defaults to True.
     """
+    if "/" in filename:
+        filename = filename.split("/")[-1]
+    if "\\" in filename:
+        filename = filename.split("\\")[-1]
+
     df = pd.DataFrame(dataframe)
     # Save the DataFrame to a CSV file
     current_date = datetime.datetime.now().strftime("%Y%m%d")

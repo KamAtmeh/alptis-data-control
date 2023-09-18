@@ -24,6 +24,8 @@ import gc
 from io import StringIO
 # ======================== #
 
+# ======================================= GMA - TMAD/SOR ============================================== #
+# ===================================================================================================== #
 def lf_gma_tmad_controle(ref_gma_tmad_sor_data: pd.DataFrame, expected_array: np.array) -> pd.DataFrame:
     """Cette fonction verifie que pour une valeur de gma, la liste minimale de valeurs de tmad/sor
     correspond, à l'aide d'un groupby.
@@ -102,8 +104,10 @@ def lf_all_gma_tmad_sor(data: pd.DataFrame, col_list: list) -> pd.DataFrame:
     
     # Retourne la ligne complète de l'alerte
     return data.loc[data_result.index, col_list].sort_values(by=col_list[0])
+# ===================================================================================================== #
 
-
+# ========================================= POL_REFECHO =============================================== #
+# ===================================================================================================== #
 def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
     """Retourne les valeurs de ens1 qui ne sont pas dans ens2
     Correspond à la différence en algèbre relationnelle (ens1 - ens2)
@@ -119,7 +123,10 @@ def pol_refecho_comparison(ens1: pd.Series, ens2: pd.Series) -> pd.Series:
         "result" : ens1.loc[ens1.isin(ens2) == False],
         "colonne" : ens1.name
     }).drop_duplicates()
+# ===================================================================================================== #
 
+# ========================================== LIEN_PERE ================================================ #
+# ===================================================================================================== #
 
 def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
     """Vérifie la cohérence entre SCON_IDENT_LIEN_PERE et SCON_REFECHO_PERE dans CONTRAT
@@ -141,7 +148,10 @@ def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
     gc.collect()
 
     return pd.concat([master_result, other_result]) 
-    
+# ===================================================================================================== #
+
+# ===================================== COUV_COTI - GARANTIE ========================================== #
+# ===================================================================================================== # 
 
 def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -> tuple:
     """Vérifie la correspondance entre les fichiers STRUCT_COUV_COTI et GARANTIE
@@ -306,6 +316,164 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
         sscc_sgar_merged.loc[sscc_sgar_merged["Exist"] == "right_only"]
     )
 
+# ===================================================================================================== #
+
+# =========================================== RISQUE ================================================== #
+# ===================================================================================================== #
+def controle_risq_pres_assure(risque_data:pd.DataFrame) -> pd.DataFrame:
+    """Contrôle la présence d'un assuré par situation
+
+    Args:
+        risque_data (pd.DataFrame): DataFrame du fichier du risque
+
+    Returns:
+        pd.DataFrame: Ligne présentant les situations sans assuré
+    """
+    situation_data = risque_data.loc[:,["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT"]].drop_duplicates()
+    risque_A = risque_data.loc[risque_data["SRIS_SAR_AY_QUALITE"] == "A", ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT"]].drop_duplicates()
+    risque_A_rslt = situation_data.merge(risque_A, how="outer", indicator="exist")
+    result = pd.merge(risque_data, risque_A_rslt.loc[risque_A_rslt["exist"] == "left_only", ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT"]], on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT"], how="inner", indicator=False)
+    result["raison"] = np.repeat("Absence d'assure pour la situation/risque", len(result))
+    return result
+
+def controle_risq_max_conjoint(risque_data:pd.DataFrame) -> pd.DataFrame:
+    """Contrôle la présence d'au maximum un conjoint par situation
+
+    Args:
+        risque_data (pd.DataFrame): DataFrame du fichier de risque
+
+    Returns:
+        pd.DataFrame: Ligne ayant plus d'un conjoint
+    """
+    risque_C = risque_data.loc[risque_data["SRIS_SAR_AY_QUALITE"] == "C", ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SAR_AY_QUALITE"]]
+    ayC_group = risque_C.groupby(["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT"]).filter(lambda x: x["SRIS_SAR_AY_QUALITE"].count() > 1)
+    result = pd.merge(risque_data, ayC_group, on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SAR_AY_QUALITE"], how="inner")
+    result["raison"] = np.repeat("Il y a plus d'un seul conjoint dans cette situation", len(result))
+    return result
+
+def controle_chgt_cle_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
+    """Contrôle le changement de clé risque lors d'un changement de risque ou non
+
+    Args:
+        risque_data (pd.DataFrame): DataFrame du fichier de risque
+
+    Returns:
+        pd.DataFrame: Lignes ayant un changement de clé sans changement de risque ou
+          ayant pas de changement de clé pour un changement de risque
+    """
+    column_list = ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]    
+    risque_A = risque_data.loc[risque_data["SRIS_SAR_AY_QUALITE"] == "A",column_list]\
+        .sort_values(["SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SOR_DATEDEBUT"], ignore_index=True)
+    grp_BPP = risque_A.groupby("SRIS_SAR_BPP_REF_EXTERNE")
+
+    shift_risque_A = risque_A.assign(NEXT_SRIS_SOR_DATEDEBUT= grp_BPP["SRIS_SOR_DATEDEBUT"].shift(-1),
+                                    NEXT_SRIS_RETRAIT_DATE = grp_BPP["SRIS_RETRAIT_DATE"].shift(-1),
+                                    NEXT_SRIS_CLE_RGP_RISQUE= grp_BPP["SRIS_CLE_RGP_RISQUE"].shift(-1))
+    shift_risque_A = shift_risque_A.loc[shift_risque_A["NEXT_SRIS_CLE_RGP_RISQUE"].isna() == False]
+    del(risque_A, grp_BPP, column_list)
+    gc.collect()
+
+    # Vérifie les clés pour un même risque
+    filter_same_risq = shift_risque_A.loc[(
+            (shift_risque_A["SRIS_RETRAIT_DATE"] == shift_risque_A["NEXT_SRIS_RETRAIT_DATE"]) |\
+            (shift_risque_A["SRIS_RETRAIT_DATE"].isna() & shift_risque_A["NEXT_SRIS_RETRAIT_DATE"].isna())
+        )]
+    rslt_new_key_btw_sit = filter_same_risq.loc[shift_risque_A["SRIS_CLE_RGP_RISQUE"] != shift_risque_A["NEXT_SRIS_CLE_RGP_RISQUE"]]
+    result_1 = pd.merge(risque_data, rslt_new_key_btw_sit.loc[:, ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]],
+                      on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"], how="inner")
+    del(filter_same_risq, rslt_new_key_btw_sit)
+    result_1["raison"] = np.repeat("Differente cle pour le meme risque", len(result_1))
+    gc.collect()
+
+    # Vérifie les clés pour différents risques
+    filter_diff_risq = shift_risque_A.loc[(shift_risque_A["SRIS_RETRAIT_DATE"] != shift_risque_A["NEXT_SRIS_RETRAIT_DATE"]) &\
+                                           ((shift_risque_A["SRIS_RETRAIT_DATE"].isna() == False) | (shift_risque_A["NEXT_SRIS_RETRAIT_DATE"].isna() == False))]
+    rslt_same_key_btw_risq = filter_diff_risq.loc[shift_risque_A["SRIS_CLE_RGP_RISQUE"] == shift_risque_A["NEXT_SRIS_CLE_RGP_RISQUE"]]
+    result_2 = pd.merge(risque_data, rslt_same_key_btw_risq.loc[:,["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]],
+                      on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"], how="inner")
+    del(filter_diff_risq, rslt_same_key_btw_risq)
+    result_2["raison"] = np.repeat("Meme cle pour differents risques", len(result_2))
+    gc.collect()
+
+    return pd.concat([result_1, result_2], ignore_index=True)
+
+def controle_date_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
+    """Contrôle les dates entres début de situations et fin de risque
+
+    Args:
+        risque_data (pd.DataFrame): DataFrame du fichier de risque 
+
+    Returns:
+        pd.DataFrame: Lignes ayant une date de début suivante inférieure à la date de fin, date de début supérieure à la date de fin
+    """
+    column_list = ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]    
+    risque_A = risque_data.loc[risque_data["SRIS_SAR_AY_QUALITE"] == "A",column_list]\
+        .sort_values(["SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SOR_DATEDEBUT"], ignore_index=True)
+    grp_BPP = risque_A.groupby("SRIS_SAR_BPP_REF_EXTERNE")
+
+    shift_risque_A = risque_A.assign(NEXT_SRIS_SOR_DATEDEBUT= grp_BPP["SRIS_SOR_DATEDEBUT"].shift(-1),
+                                    NEXT_SRIS_RETRAIT_DATE = grp_BPP["SRIS_RETRAIT_DATE"].shift(-1),
+                                    NEXT_SRIS_CLE_RGP_RISQUE= grp_BPP["SRIS_CLE_RGP_RISQUE"].shift(-1))
+    shift_risque_A = shift_risque_A.loc[shift_risque_A["NEXT_SRIS_CLE_RGP_RISQUE"].isna() == False]
+    del(risque_A, grp_BPP, column_list)
+    gc.collect()
+
+    filter_verif_date = (((shift_risque_A["SRIS_RETRAIT_DATE"].isna() == False) | (shift_risque_A["NEXT_SRIS_SOR_DATEDEBUT"].isna() == False)) & (shift_risque_A["SRIS_RETRAIT_DATE"] != shift_risque_A["NEXT_SRIS_RETRAIT_DATE"]))
+    date_verif_date = shift_risque_A.loc[filter_verif_date]
+
+    rslt_df_sup_next_dd = date_verif_date.loc[date_verif_date["SRIS_RETRAIT_DATE"] > date_verif_date["NEXT_SRIS_SOR_DATEDEBUT"]]
+    result_1 = pd.merge(risque_data, rslt_df_sup_next_dd.loc[:, ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]],
+                         on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"], how="inner")
+    result_1["raison"] = np.repeat("La date de fin est superieure a la date de debut suivant", len(result_1))
+    del(rslt_df_sup_next_dd)
+    gc.collect()
+
+    # cond_verif_date = ((date_verif_date["SRIS_RETRAIT_DATE"] > date_verif_date["NEXT_SRIS_SOR_DATEDEBUT"]) | (date_verif_date["SRIS_SOR_DATEDEBUT"] > date_verif_date["SRIS_RETRAIT_DATE"]))
+    rslt_dd_sup_df = date_verif_date.loc[(date_verif_date["SRIS_SOR_DATEDEBUT"] > date_verif_date["SRIS_RETRAIT_DATE"])]
+    result_2 = pd.merge(risque_data, rslt_dd_sup_df.loc[:,["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]],
+                         on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"], how="inner")
+    result_2["raison"] = np.repeat("La date debut est superieure a la date de fin", len(result_2))
+    del(rslt_dd_sup_df)
+    gc.collect()
+    return pd.concat([result_1, result_2], ignore_index=True)
+
+def controle_risque_file(risque_data:pd.DataFrame) -> pd.DataFrame:
+    """Contrôle la cohérence du fichier de risque:
+    - Présence d'un assuré pour chaque situation
+    - Présence d'au maximum un seul conjoint
+    - Vérification du changement de clé quand nouveau risque
+    - Vérification des dates
+
+    Args:
+        risque_data (pd.DataFrame): DataFrame du fichier risque
+
+    Returns:
+        pd.DataFrame: Résultat des vérifications
+    """
+    # Prepare datetime column
+    print("Controle de cohérence du fichier de risque...")
+    risque_data["SRIS_SOR_DATEDEBUT"] = pd.to_datetime(risque_data["SRIS_SOR_DATEDEBUT"], format="%Y%m%d")
+    risque_data["SRIS_RETRAIT_DATE"] = pd.to_datetime(risque_data["SRIS_RETRAIT_DATE"], format="%Y%m%d")
+    gc.collect()
+
+    # Vérifie la présence de l'assuré au moins une fois
+    print("Vérification de la présence d'au moins un assuré par situation/risque...")
+    result_assure = controle_risq_pres_assure(risque_data=risque_data)
+
+    # Vérifie la présence d'au maximum 1 conjoint
+    print("Vérification de la présence d'au maximum un conjoint par situation...")
+    result_conjoint = controle_risq_max_conjoint(risque_data=risque_data)
+
+    # Vérifie la cohérence entre la présence d'une date de retrait et le changement de clé
+    print("Vérification de la cohérence entre la présence d'une date de retrait et le changement de clé...")
+    result_key = controle_chgt_cle_risq(risque_data=risque_data)    
+
+    # Vérifie que la date de retrait est supérieur à la date de début précédente et inféreure à la date de début suivante
+    print("Vérication de la cohérence entre les dates de début et la date de retrait...")
+    result_date = controle_date_risq(risque_data)
+    
+    return pd.concat([result_assure, result_conjoint, result_key, result_date], ignore_index=True)
+# ===================================================================================================== #
 
 
 if __name__ == "__main__":

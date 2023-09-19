@@ -93,9 +93,22 @@ def read_splitted_file(input_fp: str, columns:list) -> pd.DataFrame:
         del(data)
         gc.collect()
         return result
-    
+
 def launch_gc() -> None:
     gc.collect()
+
+def available_input_file(filename:str, input_dir:str) -> bool:
+    """Vérifie la présence d'un fichier dans le input_dir
+
+    Args:
+        filename (str): filename to verify
+        input_dir (str): path to the input directory
+
+    Returns:
+        bool: file in the directory
+    """
+    re_filename = "{}*".format(filename[:-4])
+    return sum([bool(re.match(re_filename, this_file)) for this_file in os.listdir(input_dir)]) > 0
 
 def output_csv_name(filename:str, output_dir:str = "data/output/", flag_name: str = "FLAG_STRUCT_"):
     """Return the output filename

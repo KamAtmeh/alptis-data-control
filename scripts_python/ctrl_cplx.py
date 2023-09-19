@@ -421,6 +421,7 @@ def controle_date_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
     filter_verif_date = (((shift_risque_A["SRIS_RETRAIT_DATE"].isna() == False) | (shift_risque_A["NEXT_SRIS_SOR_DATEDEBUT"].isna() == False)) & (shift_risque_A["SRIS_RETRAIT_DATE"] != shift_risque_A["NEXT_SRIS_RETRAIT_DATE"]))
     date_verif_date = shift_risque_A.loc[filter_verif_date]
 
+    # Contrôle de la date de retrait inférieure la date de début suivante
     rslt_df_sup_next_dd = date_verif_date.loc[date_verif_date["SRIS_RETRAIT_DATE"] > date_verif_date["NEXT_SRIS_SOR_DATEDEBUT"]]
     result_1 = pd.merge(risque_data, rslt_df_sup_next_dd.loc[:, ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]],
                          on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"], how="inner")
@@ -428,7 +429,7 @@ def controle_date_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
     del(rslt_df_sup_next_dd)
     gc.collect()
 
-    # cond_verif_date = ((date_verif_date["SRIS_RETRAIT_DATE"] > date_verif_date["NEXT_SRIS_SOR_DATEDEBUT"]) | (date_verif_date["SRIS_SOR_DATEDEBUT"] > date_verif_date["SRIS_RETRAIT_DATE"]))
+    # Contrôle de la date de début inféreure à la date de retrait
     rslt_dd_sup_df = date_verif_date.loc[(date_verif_date["SRIS_SOR_DATEDEBUT"] > date_verif_date["SRIS_RETRAIT_DATE"])]
     result_2 = pd.merge(risque_data, rslt_dd_sup_df.loc[:,["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]],
                          on=["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"], how="inner")

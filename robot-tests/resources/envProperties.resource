@@ -31,12 +31,18 @@ Library    ../../scripts_python/toolbox.py
 ...    directory_files=../tmp/input/SS05/
 ...    start_row_map={"F_SAS_CONTRAT": 6, "F_SAS_STRUCT_COUV_COTI": 6, "F_SAS_GARANTIE": 5, "F_SAS_RISQUE": 5, "F_SAS_L_RISQUE_OPT_MODEL": 3, "F_SAS_INTERVENANT_POL": 3}
 ...    directory_output=../tmp/output/SS05/
+    
+&{PS06_dict}=    map_contrat=data/input/PS06/MAP_CONTRAT_PEN_PS06.xlsx
+...    directory_files=../tmp/input/PS06/
+...    start_row_map={"F_SAS_CONTRAT": 6, "F_SAS_STRUCT_COUV_COTI": 6, "F_SAS_GARANTIE": 4, "F_SAS_RISQUE": 3, "F_SAS_INTERVENANT_POL": 3}
+...    directory_output=../tmp/output/PS06/
 
 ## Global Dictionnary
 &{global_dict}    PM01=&{PM01_dict}
 ...    SM01=&{SM01_dict}
 ...    SS01=&{SS01_dict}
 ...    SS05=&{SS05_dict}
+...    PS06=&{PS06_dict}
 
 # Filepath to data
 ${fp_contrat}    F_SAS_CONTRAT_BM.csv
@@ -45,5 +51,5 @@ ${fp_garantie}    F_SAS_GARANTIE_BM.csv
 ${fp_risque}    F_SAS_RISQUE_BM.csv
 ${fp_risque_sl}    F_SAS_RISQUE_SL.csv
 ${fp_contrat_sl}    F_SAS_CONTRAT_SL.csv
-
+  
 ## Create dictionary with column names and accepted values

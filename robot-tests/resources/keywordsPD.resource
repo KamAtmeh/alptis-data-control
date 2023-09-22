@@ -150,7 +150,7 @@ Verify Number
         ${result}    toolbox.Concatenate Dataframes    ${result_int}    ${result_int_length}
     ELSE
         # Verify if variable is a decimal
-            ${result_float}    Verify Float    ${data}
+        ${result_float}    Verify Float    ${data}
         # For the next step, we remove values that did not pass the type test. And we verify the length of the ones that did.
         ${passed_float_values}    toolbox.Filter List    ${data}    ${result_float.get('value')}
         # Verify format of float number

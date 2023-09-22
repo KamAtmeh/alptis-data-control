@@ -479,6 +479,8 @@ def check_int_val(one_val: str) -> bool:
     Returns:
         bool: True if value is an integer. False if else.
     """
+    if one_val[0] == "-":
+        return one_val[1:].isdigit()
     return one_val.isdigit()
 
 

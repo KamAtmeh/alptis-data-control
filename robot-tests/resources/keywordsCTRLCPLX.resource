@@ -184,7 +184,7 @@ Verify Fichier Risque
     IF    ${available}
         Log To Console    Vérification du fichier ${input_file}    console=${True}
         ${this_fp_risque}    Catenate    SEPARATOR=/    ${input_dir}    ${input_file}
-        ${risque_data}    toolbox.Read Splitted File    ${input_file}    ["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SOR_IDENTIFIANT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SAR_AY_QUALITE"]
+        ${risque_data}    toolbox.Read Splitted File    ${this_fp_risque}    ["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SOR_IDENTIFIANT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SAR_AY_QUALITE"]
         ${result}    ctrl_cplx.controle_risque_file    ${risque_data}
     ELSE
         Skip

@@ -3,7 +3,7 @@ Documentation    Ensemble des controles simples appliqués sur un produit
 Resource    ../resources/keywordsPD.resource
 
 *** Variables ***
-${PROD_NAME}    SS01
+${PROD_NAME}    Prime_Prev
 ## exécution: robot --variable PROD_NAME:"PM01" robot-tests/test/controle_simple.robot
 
 *** Test Cases ***

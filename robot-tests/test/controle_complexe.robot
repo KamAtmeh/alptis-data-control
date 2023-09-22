@@ -4,7 +4,7 @@ Documentation    Un test pour controler la présence d'une valeur dans SCON_IDEN
 Resource    ../resources/keywordsCTRLCPLX.resource
 
 *** Variables ***
-${PROD_NAME}    PS06
+${PROD_NAME}    SS01
 ${prod_var}    ${global_dict}[${PROD_NAME}]
 # Output #
 ${fp_result_contrat}    ${PROD_NAME}_lien_pere.csv
@@ -98,13 +98,13 @@ Test Controle Risque BM
     ${result}    Verify Fichier Risque   ${prod_var}[directory_files]    ${file}
     ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
     Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
-    Should Be Empty    ${result}    Les alertes sont spécifiées dans le fichier ${display_filename}
+    Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Il y a des problèmes sur les risque ${result}
 
 Test Controle Risque SL
     ${file}    Set Variable    F_SAS_RISQUE_SL.csv
     ${result}    Verify Fichier Risque   ${prod_var}[directory_files]    ${file}
     ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
     Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
-    Should Be Empty    ${result}    Les alertes sont spécifiées dans le fichier ${display_filename}
+    Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Il y a des problèmes sur les risque ${result}
 
 

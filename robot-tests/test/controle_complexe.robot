@@ -102,7 +102,7 @@ Test Controle Risque BM
 
 Test Controle Risque SL
     ${file}    Set Variable    F_SAS_RISQUE_SL.csv
-    ${result}    Verify Fichier Risque   ${prod_var}[directory_files]    ${file}
+    ${result}    Verify Fichier Risque   ${prod_var}[directory_files]    ${file}    SL
     ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
     Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
     Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Il y a des problèmes sur les risque ${result}

@@ -21,7 +21,7 @@
 import pandas as pd
 import numpy as np
 import gc 
-from io import StringIO
+import os
 # ======================== #
 
 # ======================================= GMA - TMAD/SOR ============================================== #
@@ -361,10 +361,10 @@ def controle_chgt_cle_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: Lignes ayant un changement de clé sans changement de risque ou
           ayant pas de changement de clé pour un changement de risque
     """
-    column_list = ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]    
+    column_list = ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SCON_SOUS_BBP_REF_EXTERNE"]    
     risque_A = risque_data.loc[risque_data["SRIS_SAR_AY_QUALITE"] == "A",column_list]\
         .sort_values(["SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SOR_DATEDEBUT"], ignore_index=True)
-    grp_BPP = risque_A.groupby("SRIS_SAR_BPP_REF_EXTERNE")
+    grp_BPP = risque_A.groupby(["SRIS_SAR_BPP_REF_EXTERNE", "SCON_SOUS_BBP_REF_EXTERNE"])
 
     shift_risque_A = risque_A.assign(NEXT_SRIS_SOR_DATEDEBUT= grp_BPP["SRIS_SOR_DATEDEBUT"].shift(-1),
                                     NEXT_SRIS_RETRAIT_DATE = grp_BPP["SRIS_RETRAIT_DATE"].shift(-1),
@@ -406,10 +406,10 @@ def controle_date_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Lignes ayant une date de début suivante inférieure à la date de fin, date de début supérieure à la date de fin
     """
-    column_list = ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE"]    
+    column_list = ["SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SCON_SOUS_BBP_REF_EXTERNE"]
     risque_A = risque_data.loc[risque_data["SRIS_SAR_AY_QUALITE"] == "A",column_list]\
         .sort_values(["SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SOR_DATEDEBUT"], ignore_index=True)
-    grp_BPP = risque_A.groupby("SRIS_SAR_BPP_REF_EXTERNE")
+    grp_BPP = risque_A.groupby(["SRIS_SAR_BPP_REF_EXTERNE", "SCON_SOUS_BBP_REF_EXTERNE"])
 
     shift_risque_A = risque_A.assign(NEXT_SRIS_SOR_DATEDEBUT= grp_BPP["SRIS_SOR_DATEDEBUT"].shift(-1),
                                     NEXT_SRIS_RETRAIT_DATE = grp_BPP["SRIS_RETRAIT_DATE"].shift(-1),
@@ -438,7 +438,7 @@ def controle_date_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
     gc.collect()
     return pd.concat([result_1, result_2], ignore_index=True)
 
-def controle_risque_file(risque_data:pd.DataFrame) -> pd.DataFrame:
+def controle_risque_file(risque_data:pd.DataFrame, contrat_bm:pd.DataFrame, type:str="BM", contrat_sl:pd.DataFrame=pd.DataFrame()) -> pd.DataFrame:
     """Contrôle la cohérence du fichier de risque:
     - Présence d'un assuré pour chaque situation
     - Présence d'au maximum un seul conjoint
@@ -447,10 +447,18 @@ def controle_risque_file(risque_data:pd.DataFrame) -> pd.DataFrame:
 
     Args:
         risque_data (pd.DataFrame): DataFrame du fichier risque
+        contrat_sl (pd.DataFrame): DataFrame du fichier contrat_sl
+        contrat_bm (pd.DataFrame): DataFrame du fichier contrat_bm
+        type (str): "BM", "SL"
 
     Returns:
         pd.DataFrame: Résultat des vérifications
     """
+    # Prepare contrat and left outer join
+    contrat_data = pd.concat([contrat_bm, contrat_sl]).drop_duplicates()
+    contrat_data.columns = ["SRIS_POL_REFECHO", "SCON_SOUS_BBP_REF_EXTERNE"]
+    risque_data = risque_data.reset_index().merge(contrat_data, how="left", on="SRIS_POL_REFECHO").set_index('index')
+
     # Prepare datetime column
     print("Controle de cohérence du fichier de risque...")
     risque_data["SRIS_SOR_DATEDEBUT"] = pd.to_datetime(risque_data["SRIS_SOR_DATEDEBUT"], format="%Y%m%d")
@@ -465,9 +473,12 @@ def controle_risque_file(risque_data:pd.DataFrame) -> pd.DataFrame:
     print("Vérification de la présence d'au maximum un conjoint par situation...")
     result_conjoint = controle_risq_max_conjoint(risque_data=risque_data)
 
+    if type == "SL":
+        return pd.concat([result_assure, result_conjoint], ignore_index=True)
+
     # Vérifie la cohérence entre la présence d'une date de retrait et le changement de clé
     print("Vérification de la cohérence entre la présence d'une date de retrait et le changement de clé...")
-    result_key = controle_chgt_cle_risq(risque_data=risque_data)    
+    result_key = controle_chgt_cle_risq(risque_data=risque_data)
 
     # Vérifie que la date de retrait est supérieur à la date de début précédente et inféreure à la date de début suivante
     print("Vérication de la cohérence entre les dates de début et la date de retrait...")
@@ -478,17 +489,22 @@ def controle_risque_file(risque_data:pd.DataFrame) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    sscc_fp = "data/input/SS01/ALL/F_SAS_STRUCT_COUV_COTI.csv"
-    sgar_fp = "data/input/SS01/ALL/F_SAS_GARANTIE_BM.csv"
+    # sscc_fp = "data/input/SS01/ALL/F_SAS_STRUCT_COUV_COTI.csv"
+    # sgar_fp = "data/input/SS01/ALL/F_SAS_GARANTIE_BM.csv"
 
-    sscc_data = pd.read_csv(sscc_fp, sep=";", header=0)
-    sgar_data = pd.read_csv(sgar_fp, sep=";", header=0)
+    # sscc_data = pd.read_csv(sscc_fp, sep=";", header=0)
+    # sgar_data = pd.read_csv(sgar_fp, sep=";", header=0)
 
-    del(sscc_fp, sgar_fp)
+    # del(sscc_fp, sgar_fp)
 
-    result_sscc, result_sgar = verify_couv_coti_contrat(sscc_data=sscc_data, sgar_data=sgar_data)
+    # result_sscc, result_sgar = verify_couv_coti_contrat(sscc_data=sscc_data, sgar_data=sgar_data)
     
-    result_sscc.to_csv("data/output/result_sscc.csv", sep=";", index=False)
-    result_sgar.to_csv("data/output/result_sgar.csv", sep=";", index=False)
+    # result_sscc.to_csv("data/output/result_sscc.csv", sep=";", index=False)
+    # result_sgar.to_csv("data/output/result_sgar.csv", sep=";", index=False)
 
+    risque_data = pd.read_csv("../tmp/input/SS01/F_SAS_RISQUE_BM.csv", sep=";").loc[:,["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SOR_IDENTIFIANT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SAR_AY_QUALITE"]]
+    contrat_bm = pd.read_csv("../tmp/input/SS01/F_SAS_CONTRAT_BM.csv", sep=";").loc[:,["SCON_POL_REFECHO", "SCON_SOUSC_BPP_REF_EXTERNE"]]
+    contrat_sl = pd.read_csv("../tmp/input/SS01/F_SAS_CONTRAT_SL.csv", sep=";").loc[:,["SCON_POL_REFECHO", "SCON_SOUSC_BPP_REF_EXTERNE"]]
+
+    controle_risque_file(risque_data=risque_data, contrat_bm=contrat_bm, contrat_sl=contrat_sl)
     

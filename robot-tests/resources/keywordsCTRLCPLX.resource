@@ -179,13 +179,26 @@ Verify Controle Couv-Coti et Garantie
 
 
 Verify Fichier Risque
-    [Arguments]    ${input_dir}    ${input_file}
+    [Arguments]    ${input_dir}    ${input_file}    ${type_file}=BM
     ${available}    toolbox.Available Input File    ${input_file}    ${input_dir}
     IF    ${available}
         Log To Console    Vérification du fichier ${input_file}    console=${True}
+        ${available_contrat_sl}    toolbox.Available Input File    F_SAS_CONTRAT_SL.csv    ${input_dir}
         ${this_fp_risque}    Catenate    SEPARATOR=/    ${input_dir}    ${input_file}
-        ${risque_data}    toolbox.Read Splitted File    ${this_fp_risque}    ["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SOR_IDENTIFIANT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SAR_AY_QUALITE"]
-        ${result}    ctrl_cplx.controle_risque_file    ${risque_data}
+        ${this_fp_contrat_bm}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
+
+        IF    ${available_contrat_sl}
+            ${this_fp_contrat_sl}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat_sl}
+            ${contrat_sl}    toolbox.Read Splitted File    ${this_fp_contrat_sl}    ["SCON_POL_REFECHO", "SCON_SOUSC_BPP_REF_EXTERNE"]    
+            ${risque_data}    toolbox.Read Splitted File    ${this_fp_risque}    ["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SOR_IDENTIFIANT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SAR_AY_QUALITE"]     
+            ${contrat_bm}    toolbox.Read Splitted File    ${this_fp_contrat_bm}    ["SCON_POL_REFECHO", "SCON_SOUSC_BPP_REF_EXTERNE"]
+            ${result}    ctrl_cplx.controle_risque_file    ${risque_data}    ${contrat_bm}    ${type_file}    ${contrat_sl}
+        ELSE
+                        
+            ${risque_data}    toolbox.Read Splitted File    ${this_fp_risque}    ["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SOR_IDENTIFIANT", "SRIS_RETRAIT_DATE", "SRIS_SAR_BPP_REF_EXTERNE", "SRIS_SAR_AY_QUALITE"]                
+            ${contrat_bm}    toolbox.Read Splitted File    ${this_fp_contrat_bm}    ["SCON_POL_REFECHO", "SCON_SOUSC_BPP_REF_EXTERNE"]
+            ${result}    ctrl_cplx.controle_risque_file    ${risque_data}    ${contrat_bm}    ${type_file}
+        END
     ELSE
         Skip
     END

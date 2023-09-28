@@ -33,7 +33,7 @@ from io import StringIO
 from robot.api import logger
 # ======================== #
 
-def split_heavy_file(input_dir: str, th_size_MO:int=500):
+def split_heavy_file(input_dir: str, th_size_MO:int=200):
     """Split file that has size higher than the given threshold into smaller file to reduce memory consumption while controling them
 
     Args:
@@ -48,7 +48,7 @@ def split_heavy_file(input_dir: str, th_size_MO:int=500):
         if os.path.getsize(fp)/(10**6) > th_size_MO:
             file_nb_blocks = ceil(file_size/th_size_MO) + 1
             logger.console("{} is too large: splitting it into {} blocks".format(file, file_nb_blocks))
-            data_to_split = pd.read_csv(fp, sep=";")
+            data_to_split = pd.read_csv(fp, sep=";", dtype=object)
             colname = [a for a in data_to_split.columns if re.match(colname_re, a)][0]
             pol_refecho = data_to_split[colname].drop_duplicates()
             indexes = [one_index for one_index in range(0, len(pol_refecho), ceil(len(pol_refecho)/file_nb_blocks))]

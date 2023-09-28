@@ -1,10 +1,10 @@
 *** Settings ***
 Documentation    Ensemble des controles simpkes appliqués aux Primes
 Resource    ../resources/keywordsPRIM.resource
+Resource    ../resources/keywordsCTRLCPLX.resource
 Library    ../../scripts_python/ctrl_prime.py
 
 *** Variables ***
-@{sheets_name}    F_SAS_PRIME    F_SAS_PRIME_LIGNE
 ${PROD_NAME}    Prime_Prev
 
 *** Test Cases ***
@@ -23,7 +23,7 @@ Verify Prime Structure
     Test One Side Prime    ${PROD_NAME}    ${prod_var}[start_row_map_sante]    ${prod_var}[map_sante]    ${data_sant}    Sante
 
 
-  
+ 
     
     
 

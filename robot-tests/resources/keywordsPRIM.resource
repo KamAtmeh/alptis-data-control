@@ -3,6 +3,7 @@ Documentation     This is a resource file, that can contain variables and keywor
 ...               Keywords defined here can be used where this Keywords.resource in loaded.
 Resource    keywordsPD.resource
 Library    ../../scripts_python/ctrl_cplx.py
+Library    ../../scripts_python/ctrl_prime.py
 Library    pandas
 
 *** Variables ***
@@ -40,7 +41,27 @@ Test One Side Prime
         Log    End of verification on file ${sheet_name}    console=${True}
     END
 
+Test Sum COMNOUSMT
+    [Arguments]    ${prime_data}    ${prime_line_data}
+    [Documentation]    Verify that SUM(SLPR_LPR_COMNOUSMT) = SPRM_PRM_COMNOUSMT
+    @{colnames}    Set Variable    SPRM_PRM_COMNOUSMT    SLPR_LPR_COMNOUSMT
+    ${result_sum}    ctrl_prime.Verify Sum    ${prime_data}    ${prime_line_data}    ${colnames}[0]    ${colnames}[1]
+    [Return]    ${result_sum}
 
+
+Test Sum TAXASSMT
+    [Arguments]    ${prime_data}    ${prime_line_data}
+    [Documentation]    Verify that SUM(SLPR_LPR_TAXASSMT) = SPRM_PRM_TAXASSMT
+    @{colnames}    Set Variable    SPRM_PRM_TAXASSMT    SLPR_LPR_TAXASSMT
+    ${result_sum}    ctrl_prime.Verify Sum    ${prime_data}    ${prime_line_data}    ${colnames}[0]    ${colnames}[1]
+    [Return]    ${result_sum}
+
+Test Existence Enregistrement Prime - Prime_Ligne
+    [Arguments]    ${prime_data}    ${prime_line_data}
+    [Documentation]    Existence enregistrement entre Prime et Prime Ligne
+    ${result_prime_primel}    ctrl_cplx.pol_refecho_comparison    ${prime_data.get('SPRM_PRM_REFECHO')}    ${prime_line_data.get('SLPR_PRM_REFECHO')}
+    ${result_primel_prime}    ctrl_cplx.pol_refecho_comparison    ${prime_line_data.get('SLPR_PRM_REFECHO')}    ${prime_data.get('SPRM_PRM_REFECHO')}
+    [Return]    ${result_prime_primel}    ${result_primel_prime}
 
 
 

@@ -9,7 +9,7 @@ ${prod_var}    ${global_dict}[${PROD_NAME}]
 # Output #
 ${fp_result_contrat}    ${PROD_NAME}_lien_pere.csv
 ${fp_result_gma}    ${PROD_NAME}_gma_tmad_sor.csv
-${fp_existence_result}    ${PROD_NAME}_existence_enregistrement_result    .csv
+${fp_existence_result}    ${PROD_NAME}_existence_enregistrement_result.csv
 ${fp_result_sscc}    ${PROD_NAME}_quali_period_sscc_result.csv
 ${fp_result_sgar}    ${PROD_NAME}_quali_period_sgar_result.csv
 

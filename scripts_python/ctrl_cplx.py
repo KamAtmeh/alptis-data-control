@@ -504,7 +504,6 @@ def controle_risque_file(risque_data:pd.DataFrame, contrat_bm:pd.DataFrame, type
 
 # ============================================ DATE =================================================== #
 # ===================================================================================================== #
-
 def parse_date(date_series:pd.Series) -> pd.Series:
     """Transforme une lecture de date (int/object) en datetime selon la longueur du format
 
@@ -514,10 +513,7 @@ def parse_date(date_series:pd.Series) -> pd.Series:
     Returns:
         pd.Series: Series au format de datetime
     """
-    cond_not_int = date_series.str.match(r"\d+(_\d+)?\.0")
-    if sum(cond_not_int):
-        date_series[cond_not_int] = date_series[cond_not_int].str.extract(r"(\d+_?\d*)").iloc[:,0]
-    if len(date_series[0]) > 8:
+    if len(date_series.iloc[0]) > 8:
         return pd.to_datetime(date_series, format="%Y%m%d_%H%M%S")
     return pd.to_datetime(date_series, format="%Y%m%d")
 
@@ -536,14 +532,15 @@ def check_date_coherence(contrat: pd.DataFrame, comp_data: pd.DataFrame, comp_co
     comp_data.rename(columns={comp_data.columns[0]: contrat.columns[0]}, inplace=True)
     merged_data = pd.merge(contrat, comp_data, on=contrat.columns[0], how="inner")
 
+    if merged_data[comp_col].dtype == "float64":
+        merged_data[comp_col] = merged_data[comp_col].astype("Int64")
+
     merged_data["SCON_POL_DATDEB"] = merged_data["SCON_POL_DATDEB"].astype('str')
     merged_data[comp_col] = merged_data[comp_col].astype("str")
     cond_keep_line = ((merged_data[comp_col].isna() == False) & (merged_data[comp_col].str.match(r"\d+(_\d+)?")))
-    print(sum(cond_keep_line))
     merged_data = merged_data.loc[cond_keep_line]
     merged_data["SCON_POL_DATDEB"] = parse_date(merged_data["SCON_POL_DATDEB"])
     merged_data[comp_col] = parse_date(merged_data[comp_col])
-
     result = merged_data.loc[merged_data["SCON_POL_DATDEB"] > merged_data[comp_col]]
     result["Erreur"] = "La date de {} est antérieure à la date de début du contrat SCON_POL_DATDEB".format(comp_col)
 
@@ -567,6 +564,7 @@ def check_date_coherence_couv_coti(contrat: pd.DataFrame, couv_coti: pd.DataFram
 
     return pd.concat([result_col1, result_col2], axis=0, ignore_index=True)
 
+
 def check_date_coherence_risque(contrat: pd.DataFrame, risque: pd.DataFrame) -> pd.DataFrame:
     """Verifie les coherences de date entre risque et contrat:
     - SCON_POL_DATDEB <= SRIS_DATE_MVT_RISQUE
@@ -583,6 +581,43 @@ def check_date_coherence_risque(contrat: pd.DataFrame, risque: pd.DataFrame) -> 
     result_col2 = check_date_coherence(contrat=contrat, comp_data=risque, comp_col="SRIS_SOR_DATEDEBUT")
 
     return pd.concat([result_col1, result_col2], axis=0, ignore_index=True)
+# ===================================================================================================== #
+
+# ======================================== SSCC_SAR_FORMULE_X ========================================= #
+# ===================================================================================================== #
+def controle_sor_formule_x(contrat: pd.DataFrame, couv_coti: pd.DataFrame) -> pd.DataFrame:
+    """Controle de la coherence entre les colonnes SSCC_CREER_AY_X et SSCC_SAR_FORMULE_X (X correspondant a C ou E)
+    Si SSCC_CREER_AY_X vaut 1 alors SSCC_SAR_FORMULE_X doit etre valorisee lorsque SCON_TYPOLOGIE vaut 01_ADP_COLLECTIF
+    Si SSCC_CREER_AY_X vaut 0 alors SSCC_SAR_FORMULE_X doit etre vide
+
+    Args:
+        contrat (pd.DataFrame): DataFrame du fichier de contrat
+        couv_coti (pd.DataFrame): DataFrame du fichier de couv_coti
+
+    Returns:
+        pd.DataFrame: DataFrame du resultat
+    """
+    contrat = contrat.loc[contrat["SCON_TYPOLOGIE"] == "01_ADP_COLLECTIF"]
+    couv_coti = couv_coti.rename(columns={"SSCC_POL_REFECHO": "SCON_POL_REFECHO"})
+
+    merged_data = pd.merge(contrat, couv_coti, how="inner", on="SCON_POL_REFECHO")
+
+    del(contrat, couv_coti)
+    gc.collect()
+
+    cond_sor_c = ((merged_data["SSCC_CREER_AY_C"] == 1) & (merged_data["SSCC_SAR_FORMULE_C"].isna())) |\
+        ((merged_data["SSCC_CREER_AY_C"] == 0) & (merged_data["SSCC_SAR_FORMULE_C"].isna() == False)) 
+    result_c = merged_data.loc[cond_sor_c]
+    result_c["Erreur"] = "La valeur de SSCC_CREER_AY_C n'est pas coherente avec la présence (ou non) de valeur dans SSCC_SAR_FORMULE_C"
+
+    cond_sor_e = ((merged_data["SSCC_CREER_AY_E"] == 1) & (merged_data["SSCC_SAR_FORMULE_E"].isna())) |\
+        ((merged_data["SSCC_CREER_AY_E"] == 0) & (merged_data["SSCC_SAR_FORMULE_E"].isna() == False)) 
+    result_e = merged_data.loc[cond_sor_e]
+    result_e["Erreur"] = "La valeur de SSCC_CREER_AY_E n'est pas coherente avec la présence (ou non) de valeur dans SSCC_SAR_FORMULE_E"
+    
+    del(merged_data, cond_sor_c, cond_sor_e)
+    gc.collect()
+    return pd.concat([result_c, result_e], axis=0, ignore_index=True)
 
 
 

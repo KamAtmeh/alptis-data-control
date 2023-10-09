@@ -54,7 +54,7 @@ Get Verification Results
 
 
 Verify Column Data
-    [Arguments]    ${csv_data}    ${column}    ${list_values}    ${data_type}
+    [Arguments]    ${csv_data}    ${column}    ${list_values}    ${data_type}    ${format}
 
     # Initialize empty dataframes to stock results
     ${result_type}    Create Empty Dataframe
@@ -69,7 +69,7 @@ Verify Column Data
     IF    $list_values.lower() != 'vide'
         Log    Verify type of values in column ${column}    console=${True}
         # Verify data type on all column
-        ${result_type}    Verify Data Type    ${csv_data.get('${column}')}    ${data_type}
+        ${result_type}    Verify Data Type    ${csv_data.get('${column}')}    ${data_type}    ${format}
         # For the next step, we remove values that did not pass the type test. And we verify the values of the ones that did.
         ${passed_values}    toolbox.Filter List    ${csv_data.get('${column}')}    ${result_type.get('value')}
     ELSE
@@ -98,7 +98,7 @@ Verify Data Values
 # Verify taux et montant
 
 Verify Data Type
-    [Arguments]    ${data}    ${variableType}
+    [Arguments]    ${data}    ${variableType}    ${variableFormat}
     [Documentation]    Verify data type
     # Split the variable using '(' as the separator
     ${variableType}    Replace String    ${variableType}    CHAR)    )
@@ -115,7 +115,13 @@ Verify Data Type
         ${result}    Verify Number    ${data}    ${format}
 
     ELSE IF    '${type.lower()}' == 'date'
-        ${result}    Verify Date    ${data}
+        Log To Console    ${variableFormat}    console=${True}
+        IF    '${variableFormat}' == 'nan'
+            ${result}    Verify Date    ${data}
+        ELSE
+            ${result}    Verify DateTime    ${data}    
+        END
+        
     END
     [Return]    ${result}
 
@@ -125,6 +131,13 @@ Verify String
     # Verify whether variable is numeric
     ${result}    Verify Length    ${data}    ${expected_length}    String
     [Return]    ${result}  
+
+Verify DateTime
+    [Arguments]    ${data}
+    [Documentation]    Verify that the variable follows the YYYYMMDD_HHMMSS date format
+    ${result}    toolbox.Check Datetime   ${data}
+    Run Keyword And Continue On Failure    Should Be Empty    ${result}    ${data.name}: Some values do not match the YYYYMMDD_HHMMSS date format
+    [Return]    ${result}
 
 Verify Date
     [Arguments]    ${data}

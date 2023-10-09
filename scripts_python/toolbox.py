@@ -544,7 +544,7 @@ def check_date(data: pd.Series) -> pd.DataFrame:
         pd.DataFrame: Datframe containing the values that do not match the required format along with the flag message.
     """
     temp_data = data.loc[data.isna() == False]
-    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_date_val) == False], "Value \'{}\' does not match the YYYYMMDD date format or YYYYMMDD_000000")
+    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_date_val) == False], "Value \'{}\' does not match the YYYYMMDD date format")
 
 
 def check_date_val(one_val: str) -> bool:
@@ -558,7 +558,36 @@ def check_date_val(one_val: str) -> bool:
     """
     #pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$'
     # Define a regex pattern that says that values should match the YYMMDD format or the YYMMDD_000000 format
-    pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?:_000000)?$'
+    pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$'
+    # Return the boolean value after verification
+    return bool(re.match(pattern, str(one_val)))
+
+
+def check_datetime(data: pd.Series) -> pd.DataFrame:
+    """Verify if values in a list match the required date format
+
+    Args:
+        data (pd.Series): List of values to verify
+
+    Returns:
+        pd.DataFrame: Datframe containing the values that do not match the required format along with the flag message.
+    """
+    temp_data = data.loc[data.isna() == False]
+    return add_flag_details(temp_data.loc[temp_data.apply(str).apply(check_datetime_val) == False], "Value \'{}\' does not match the YYYYMMDD_000000 date format")
+
+
+def check_datetime_val(one_val: str) -> bool:
+    """Verify if a value matches the required date format
+
+    Args:
+        one_val (str): Value to verify
+
+    Returns:
+        bool: True if value matches the required date format. False if else.
+    """
+    #pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$'
+    # Define a regex pattern that says that values should match the YYMMDD format or the YYMMDD_000000 format
+    pattern = r'^((19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])_000000$'
     # Return the boolean value after verification
     return bool(re.match(pattern, str(one_val)))
 

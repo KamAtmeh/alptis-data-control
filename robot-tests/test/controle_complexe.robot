@@ -4,7 +4,7 @@ Documentation    Un test pour controler la présence d'une valeur dans SCON_IDEN
 Resource    ../resources/keywordsCTRLCPLX.resource
 
 *** Variables ***
-${PROD_NAME}    SS01
+${PROD_NAME}    SS05
 ${prod_var}    ${global_dict}[${PROD_NAME}]
 # Output #
 ${fp_result_contrat}    ${PROD_NAME}_lien_pere.csv
@@ -100,12 +100,14 @@ Test Controle Risque BM
     Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
     Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Il y a des problèmes sur les risque ${result}
 
-Test Controle Risque SL
-    ${file}    Set Variable    F_SAS_RISQUE_SL.csv
-    ${result}    Verify Fichier Risque   ${prod_var}[directory_files]    ${file}    SL
-    ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
-    Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
-    Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Il y a des problèmes sur les risque ${result}
+# Ce controle est faux car les risques SL s'appuie sur le pere du POL_REFECHO dans F_SAS_CONTRAT_SL
+# Test Controle Risque SL
+#     Skip
+#     ${file}    Set Variable    F_SAS_RISQUE_SL.csv
+#     ${result}    Verify Fichier Risque   ${prod_var}[directory_files]    ${file}    SL
+#     ${display_filename}    toolbox.Output Csv Name    ${file}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_COHERENCE_RISQUE_
+#     Run Keyword If    ${result.__len__()} > 0    toolbox.write_csv    ${result}   ${file}    ${prod_var}[directory_output]    FLAG_COHERENCE_RISQUE_
+#     Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Il y a des problèmes sur les risque ${result}
 
 
 ### TEST DATES ###
@@ -125,3 +127,10 @@ Test Coherence Date Contrat Risque
 
     Should Be Empty    ${result_contrat_cc}    Résultat ici: ${display_filename}${\n}Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_contrat_cc}    
 
+Test Formule X Couv-Coti
+    ${result_contrat_cc}    Verify Formule X Couv-Coti    ${prod_var}[directory_files]
+    
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_DATE_CONTRAT_COUV_COTI_
+    Run Keyword If     ${result_contrat_cc.__len__()} > 0    toolbox.write_csv   ${result_contrat_cc}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_DATE_CONTRAT_COUV_COTI_    w    ${True}
+
+    Should Be Empty    ${result_contrat_cc}    Résultat ici: ${display_filename}${\n}Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_contrat_cc}    

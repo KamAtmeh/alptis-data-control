@@ -3,7 +3,7 @@ Documentation    Ensemble des controles simples appliqués sur un produit
 Resource    ../resources/keywordsPD.resource
 
 *** Variables ***
-${PROD_NAME}    Prime_Prev
+${PROD_NAME}    SS05
 ## exécution: robot --variable PROD_NAME:"PM01" robot-tests/test/controle_simple.robot
 
 *** Test Cases ***
@@ -30,7 +30,7 @@ Verify Product Structure
         Log    Iterate over map to verify the specified columns    console=${True}
         FOR    ${row}    IN RANGE    ${0}    ${excel.__len__()}
             Log    Run verification on column ${excel.loc[${row},'Zone SAS']}   console=${True}
-            ${result_table}    Verify Column Data    ${csv_data}    ${excel.loc[${row},'Zone SAS']}    ${excel.loc[${row},'Valeurs attendues']}    ${excel.loc[${row},'Type']}
+            ${result_table}    Verify Column Data    ${csv_data}    ${excel.loc[${row},'Zone SAS']}    ${excel.loc[${row},'Valeurs attendues']}    ${excel.loc[${row},'Type']}    ${excel.loc[${row}, 'Format']}
             Log    Get summary table of verification on file ${file_name}    console=${True}
             ${column_results}    Get Verification Results    ${file_name}    ${excel.loc[${row},'Zone SAS']}    ${result_table}
             Log    Group column results into one big file    console=${True}

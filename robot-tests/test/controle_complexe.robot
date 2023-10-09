@@ -108,3 +108,20 @@ Test Controle Risque SL
     Should Be Empty    ${result}    Résultat ici: ${display_filename}${\n}Il y a des problèmes sur les risque ${result}
 
 
+### TEST DATES ###
+Test Coherence Date Contrat Couv-Coti
+    ${result_contrat_cc}    Verify Coherence Date Contrat Couv-Coti    ${prod_var}[directory_files]
+    
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_DATE_CONTRAT_COUV_COTI_
+    Run Keyword If     ${result_contrat_cc.__len__()} > 0    toolbox.write_csv   ${result_contrat_cc}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_DATE_CONTRAT_COUV_COTI_    w    ${True}
+
+    Should Be Empty    ${result_contrat_cc}    Résultat ici: ${display_filename}${\n}Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_contrat_cc}    
+
+Test Coherence Date Contrat Risque
+    ${result_contrat_cc}    Verify Coherence Date Contrat Risque    ${prod_var}[directory_files]
+    
+    ${display_filename}    toolbox.Output Csv Name    ${fp_existence_result}    //fs-cleva/Migration/Back/input/CONTRAT/OUTPUT/robot/${PROD_NAME}/    FLAG_DATE_CONTRAT_RISQUE_
+    Run Keyword If     ${result_contrat_cc.__len__()} > 0    toolbox.write_csv   ${result_contrat_cc}    ${fp_existence_result}    ${prod_var}[directory_output]    FLAG_DATE_CONTRAT_RISQUE_    w    ${True}
+
+    Should Be Empty    ${result_contrat_cc}    Résultat ici: ${display_filename}${\n}Des valeurs dans l'ensemble à droite ne sont pas dans l'ensemble à gauche.${\n} ${result_contrat_cc}    
+

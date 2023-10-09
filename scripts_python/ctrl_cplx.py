@@ -21,7 +21,7 @@
 import pandas as pd
 import numpy as np
 import gc 
-import os
+import re
 # ======================== #
 
 # ======================================= GMA - TMAD/SOR ============================================== #
@@ -501,6 +501,89 @@ def controle_risque_file(risque_data:pd.DataFrame, contrat_bm:pd.DataFrame, type
     
     return pd.concat([result_assure, result_conjoint, result_key, result_date], ignore_index=True)
 # ===================================================================================================== #
+
+# ============================================ DATE =================================================== #
+# ===================================================================================================== #
+
+def parse_date(date_series:pd.Series) -> pd.Series:
+    """Transforme une lecture de date (int/object) en datetime selon la longueur du format
+
+    Args:
+        date_series (pd.Series): Series de la colonne date
+
+    Returns:
+        pd.Series: Series au format de datetime
+    """
+    cond_not_int = date_series.str.match(r"\d+(_\d+)?\.0")
+    if sum(cond_not_int):
+        date_series[cond_not_int] = date_series[cond_not_int].str.extract(r"(\d+_?\d*)").iloc[:,0]
+    if len(date_series[0]) > 8:
+        return pd.to_datetime(date_series, format="%Y%m%d_%H%M%S")
+    return pd.to_datetime(date_series, format="%Y%m%d")
+
+
+def check_date_coherence(contrat: pd.DataFrame, comp_data: pd.DataFrame, comp_col: str) -> pd.DataFrame:
+    """Verifie si une date est coherente avec la date du contrat
+
+    Args:
+        contrat (pd.DataFrame): DataFrame du contrat
+        comp_data (pd.DataFrame): DataFrame a comparer
+        comp_col (str): Nom de la colonne
+
+    Returns:
+        pd.DataFrame: DataFrame du resultat
+    """
+    comp_data.rename(columns={comp_data.columns[0]: contrat.columns[0]}, inplace=True)
+    merged_data = pd.merge(contrat, comp_data, on=contrat.columns[0], how="inner")
+
+    merged_data["SCON_POL_DATDEB"] = merged_data["SCON_POL_DATDEB"].astype('str')
+    merged_data[comp_col] = merged_data[comp_col].astype("str")
+    cond_keep_line = ((merged_data[comp_col].isna() == False) & (merged_data[comp_col].str.match(r"\d+(_\d+)?")))
+    print(sum(cond_keep_line))
+    merged_data = merged_data.loc[cond_keep_line]
+    merged_data["SCON_POL_DATDEB"] = parse_date(merged_data["SCON_POL_DATDEB"])
+    merged_data[comp_col] = parse_date(merged_data[comp_col])
+
+    result = merged_data.loc[merged_data["SCON_POL_DATDEB"] > merged_data[comp_col]]
+    result["Erreur"] = "La date de {} est antérieure à la date de début du contrat SCON_POL_DATDEB".format(comp_col)
+
+    return result
+
+
+def check_date_coherence_couv_coti(contrat: pd.DataFrame, couv_coti: pd.DataFrame) -> pd.DataFrame:
+    """Verifie les coherence entre couv coti et contrat:
+    - SCON_POL_DATDEB <= SSCC_RGPO_DATEDEBUT
+    - SCON_POL_DATDEB <= SSCC_SOR_DATEDEBUT
+
+    Args:
+        contrat (pd.DataFrame): DataFrame du fichier contrat
+        couv_coti (pd.DataFrame): DataFrame du fichier couv_coti
+
+    Returns:
+        pd.DataFrame: DataFrame contenant les lignes generants une alerte
+    """
+    result_col1 = check_date_coherence(contrat=contrat, comp_data=couv_coti, comp_col="SSCC_RGPO_DATEDEBUT")
+    result_col2 = check_date_coherence(contrat=contrat, comp_data=couv_coti, comp_col="SSCC_SOR_DATEDEBUT")
+
+    return pd.concat([result_col1, result_col2], axis=0, ignore_index=True)
+
+def check_date_coherence_risque(contrat: pd.DataFrame, risque: pd.DataFrame) -> pd.DataFrame:
+    """Verifie les coherences de date entre risque et contrat:
+    - SCON_POL_DATDEB <= SRIS_DATE_MVT_RISQUE
+    - SCON_POL_DATDEB <= SRIS_SOR_DATEDEBUT
+
+    Args:
+        contrat (pd.DataFrame): DataFrame du fichier contrat
+        risque (pd.DataFrame): DataFrame du fichier risque
+
+    Returns:
+        pd.DataFrame: DataFrame contenant les lignes generant des alertes
+    """
+    result_col1 = check_date_coherence(contrat=contrat, comp_data=risque, comp_col="SRIS_DATE_MVT_RISQUE")
+    result_col2 = check_date_coherence(contrat=contrat, comp_data=risque, comp_col="SRIS_SOR_DATEDEBUT")
+
+    return pd.concat([result_col1, result_col2], axis=0, ignore_index=True)
+
 
 
 if __name__ == "__main__":

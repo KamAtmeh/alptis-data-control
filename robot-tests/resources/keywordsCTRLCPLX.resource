@@ -141,9 +141,9 @@ Verify Existence Enregistrement RisqueSL Contrat
 Verify Existence Enregistrement ContratSL Contrat
     [Arguments]    ${input_dir}
     ${available_con}    toolbox.Available Input File    ${fp_contrat}    ${input_dir}
-    ${available_ris}    toolbox.Available Input File    ${fp_risque_sl}    ${input_dir}
+    ${available_contrat_sl}    toolbox.Available Input File    ${fp_contrat_sl}    ${input_dir}
 
-    IF    ${available_con} and ${available_ris}   
+    IF    ${available_con} and ${available_contrat_sl}   
         ${this_fp_contrat_bm}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
         ${this_fp_contrat_sl}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat_sl}
 
@@ -205,6 +205,45 @@ Verify Fichier Risque
     [Return]    ${result}
 
 
+
+Verify Coherence Date Contrat Couv-Coti
+    [Arguments]    ${input_dir} 
+    ${available_con}    toolbox.Available Input File    ${fp_contrat}    ${input_dir}
+    ${available_scc}    toolbox.Available Input File    ${fp_couv_coti}    ${input_dir}
+
+    IF    ${available_con} and ${available_scc}    
+        ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
+        ${this_fp_couv_coti}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_couv_coti}
+
+        ${contrat}    toolbox.Read Splitted File    ${this_fp_contrat}    ["SCON_POL_REFECHO", "SCON_POL_DATDEB"]
+        ${couv_coti}    toolbox.Read Splitted File    ${this_fp_couv_coti}    ["SSCC_POL_REFECHO", "SSCC_GMA_CODE", "SSCC_TMAD_CODE", "SSCC_SOR_IDENTIFIANT", "SSCC_RGPO_DATEDEBUT", "SSCC_SOR_DATEDEBUT"]
+            
+        Log To Console    Vérification de contrat - couv_coti ${\n}
+        ${result}    ctrl_cplx.check_date_coherence_couv_coti    ${contrat}    ${couv_coti}
+    ELSE
+        Skip
+    END
+    [Return]    ${result}  
+
+
+Verify Coherence Date Contrat Risque
+    [Arguments]    ${input_dir}
+    ${available_con}    toolbox.Available Input File    ${fp_contrat}    ${input_dir}
+    ${available_ris}    toolbox.Available Input File    ${fp_risque}    ${input_dir}
+
+    IF    ${available_con} and ${available_ris}   
+        ${this_fp_contrat}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_contrat}
+        ${this_fp_risque}    Catenate    SEPARATOR=/    ${input_dir}    ${fp_risque}
+
+        ${contrat}    toolbox.Read Splitted File    ${this_fp_contrat}    ["SCON_POL_REFECHO", "SCON_POL_DATDEB"]
+        ${risque}    toolbox.Read Splitted File    ${this_fp_risque}    ["SRIS_POL_REFECHO", "SRIS_CLE_RGP_RISQUE", "SRIS_DATE_MVT_RISQUE", "SRIS_SOR_DATEDEBUT", "SRIS_SAR_BPP_REF_EXTERNE"]
+
+        Log To Console    Vérification de risque - contrat
+        ${result}    ctrl_cplx.check_date_coherence_risque    ${contrat}    ${risque}
+    ELSE 
+        Skip
+    END
+    [Return]    ${result}
 
 
 

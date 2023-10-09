@@ -8,8 +8,6 @@ import toolbox as tl
 
 def parse_date(date_series:pd.Series) -> pd.Series:
     date_series = date_series.astype('str')
-    print(date_series)
-    print(date_series.dtypes)
     if len(date_series[0]) > 8:
         return pd.to_datetime(date_series, format="%Y%m%d_%H%M%S")
     return pd.to_datetime(date_series, format="%Y%m%d")

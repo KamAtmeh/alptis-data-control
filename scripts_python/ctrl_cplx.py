@@ -3,9 +3,9 @@
 # ======================== #
 ####    Information     ####
 # ------------------------ #
-# Version   : V0
+# Version   : V1
 # Author    : Morgan Séguéla
-# Date      : 20/07/2023
+# Date      : 06/10/2023
 
 ####    Objectif        ####
 # ------------------------ #
@@ -14,7 +14,7 @@
 
 ####    A faire         ####
 # ------------------------ #
-# Modifier lf_all_gma_tmad_sor pour prendre en entrée du pandas
+# Ajout de nouveaux controles des tickets crees le 05/10
 
 ####    Packages        ####
 # ------------------------ #
@@ -53,6 +53,10 @@ def lf_gma_tmad_controle(ref_gma_tmad_sor_data: pd.DataFrame, expected_array: np
     
     # On récupère les REFECHO dont les alertes sont levées
     ref_gma_tmad_sor_result = ref_gma_tmad_sor_data.loc[ref_gma_tmad_sor_data[df_col[0]].isin(gpref_gma_tmad_sor_result.loc[gpref_gma_tmad_sor_result[df_col[2]] == False].index)]
+    
+    del(ref_gma_tmad_sor_data, gpref_gma_tmad_sor_data, gpref_gma_tmad_sor_result)
+    gc.collect()
+
     return ref_gma_tmad_sor_result
 
 
@@ -102,6 +106,9 @@ def lf_all_gma_tmad_sor(data: pd.DataFrame, col_list: list) -> pd.DataFrame:
 
     data_result = pd.concat([nan_result, gma_1tmad_sce_result, gma_1tmad_uni_result, gma_2tmad_result, gma_3tmad_p_result, gma_3tmad_re_result])
     
+    del(nan_result, gma_1tmad_sce_result, gma_1tmad_uni_result, gma_2tmad_result, gma_3tmad_p_result, gma_3tmad_re_result)
+    gc.collect()
+
     # Retourne la ligne complète de l'alerte
     return data.loc[data_result.index, col_list].sort_values(by=col_list[0])
 # ===================================================================================================== #
@@ -137,13 +144,19 @@ def coherence_lien_pere(data: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Valeur n'étant pas cohérent
     """
+    # Lignes qui ont une valeur dans POL_REFECHO_PERE
     master_data = data.loc[data["SCON_REFECHO_PERE"].isna() == False]
+    # Extraction des lignes qui n'ont pas de valeur dans SCON_IDENT_LIEN_PERE (Problematique)
     master_result = master_data.loc[master_data["SCON_IDENT_LIEN_PERE"].isna() == True,
                                     ["SCON_POL_REFECHO", "SCON_REFECHO_PERE", "SCON_IDENT_LIEN_PERE"]]
 
+    # Lignes qui ont une valeur dans SCON_IDENT_LIEN_PERE
     other_data = data.loc[data["SCON_IDENT_LIEN_PERE"].isna() == False]
+    # Extraction des lignes qui n'ont pas de valeur dans SCON_REFECHO_PERE (Problematique)
     other_result = other_data.loc[other_data["SCON_REFECHO_PERE"].isna() == True,
                                 ["SCON_POL_REFECHO", "SCON_REFECHO_PERE", "SCON_IDENT_LIEN_PERE"]]
+    
+    # Nettoyage de la mémmoire
     del(master_data, other_data)
     gc.collect()
 
@@ -300,6 +313,7 @@ def verify_couv_coti_contrat(sscc_data: pd.DataFrame, sgar_data: pd.DataFrame) -
                     how="outer", indicator="Exist")
 
     del(sgar_slct, sscc_slct)
+    gc.collect()
     # Index column to int64
     sscc_sgar_merged["sscc_index"] = sscc_sgar_merged["sscc_index"].fillna(0)
     sscc_sgar_merged["sgar_index"] = sscc_sgar_merged["sgar_index"].fillna(0) 
@@ -396,6 +410,7 @@ def controle_chgt_cle_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
     gc.collect()
 
     return pd.concat([result_1, result_2], ignore_index=True)
+
 
 def controle_date_risq(risque_data:pd.DataFrame) -> pd.DataFrame:
     """Contrôle les dates entres début de situations et fin de risque

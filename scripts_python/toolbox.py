@@ -159,14 +159,25 @@ def write_csv(dataframe: pd.DataFrame, filename: str, output_dir: str = "data/ou
         print(f"Folder '{outputdir}' already exists.")
     csv_file_path = outputdir + flag_name + filename.replace(".csv", "") + "_" + current_date + ".csv"
     df.to_csv(csv_file_path, sep=";", index=False, encoding="UTF-8", mode=mode, header=header)
-    del(df)
+    del(df, dataframe)
     gc.collect()
 
 
 def read_excel_without_empty_rows(filepath, sheet_name, header):
+    """Read the Excel file and skip empty rows at the end
+
+    Args:
+        filepath (str): Filepath to the Excel
+        sheet_name (str): Sheet name
+        header (int): id line of header
+
+    Returns:
+        pd.DataFrame: DataFrame of excel file and page
+    """
     # Read the Excel file and skip empty rows at the end
     df = pd.read_excel(filepath, header=header, sheet_name=sheet_name)
     df.dropna(how='all', inplace=True)
+    gc.collect()
     return df
 
 def retrieve_file_name(path: str) -> str:
@@ -292,6 +303,7 @@ def drop_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     df.drop("num_line", axis=1, inplace=True)
     # Remove duplicated rows
     df.drop_duplicates(subset=df.columns, inplace=True)
+    gc.collect()
     # Return the final dataframe
     return df
 
@@ -331,6 +343,8 @@ def check_value(data: pd.Series, list_values: str) -> pd.DataFrame:
     message_template = "Value {} does not correspond to any of the following values: " + ", ".join(map(str, list_values))
     # Add the new column with the formatted message
     df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
+    del(data, message_template, res)
+    gc.collect()
     return df
 
 
@@ -366,6 +380,9 @@ def check_length(data: pd.Series, expected_length: int, variable_type: str) -> p
     message_template = "{} length should be less than or equal to {}".format(variable_type, expected_length)
     # Add the new column with the formatted message
     df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
+
+    del(temp_data, message_template)
+    gc.collect()
     # Return dataframe
     return df
 
@@ -429,6 +446,8 @@ def check_decimal(data: pd.Series, expected_format: str) -> pd.DataFrame:
     message_template = "Value \'{}\' does not correspond to the number format (" + expected_format + ")"
     # Add the new column with the formatted message
     df['flag_details'] = df['value'].apply(lambda x: message_template.format(x))
+    del(temp_data)
+    gc.collect()
     # Return dataframe
     return df
 
